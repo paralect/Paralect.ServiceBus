@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Messaging;
+using System.Text;
+using System.Threading;
+
+namespace Paralect.ServiceBus
+{
+    public class ServiceBus : IDisposable
+    {
+        private readonly Configuration _configuration;
+        private static object receivingLock = new object();
+        private Thread _workerThread;
+        private Boolean _continue = true;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:System.Object"/> class.
+        /// </summary>
+        public ServiceBus(Configuration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public void Run()
+        {
+            CheckAvailabilityOfQueue(_configuration.InputQueue);
+            CheckAvailabilityOfQueue(_configuration.ErrorQueue);
+
+            _workerThread = new Thread(BackgroundThread)
+            {
+                Name = "Paralect Service Bus Worker Thread #" + 1,
+                IsBackground = true,
+            };
+            _workerThread.Start();
+        }
+
+        protected void BackgroundThread(object state)
+        {
+            using (var queue = new MessageQueue(_configuration.InputQueue.GetQueuePath()))
+            {
+                queue.Formatter = new MessageFormatter();
+
+                while(_continue)
+                {
+                    try
+                    {
+                        var message = queue.Receive(new TimeSpan(0, 0, 3));
+                        var obj = message.Body;
+
+
+
+                    }
+                    catch (MessageQueueException mqe)
+                    {
+                        if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                            continue;
+                    }
+
+                    // handle obj
+                }
+            }
+        }
+
+        public void CheckAvailabilityOfQueue(QueueName queue)
+        {
+            if (!MessageQueue.Exists(queue.GetQueuePath()))
+            {
+                MessageQueue.Create(queue.GetQueuePath(), true); // transactional
+            }            
+        }
+
+        public void Send(Object message)
+        {
+            var queueName = _configuration.EndpointsMapping.GetQueue(message.GetType());
+
+            // Open the queue.
+            using (var queue = new MessageQueue(queueName.GetQueuePath()))
+            {
+                // Set the formatter to JSON.
+                queue.Formatter = new MessageFormatter();
+
+                // Since we're using a transactional queue, make a transaction.
+                using (MessageQueueTransaction mqt = new MessageQueueTransaction())
+                {
+                    mqt.Begin();
+
+                    // Create a simple text message.
+                    Message myMessage = new Message(message, new MessageFormatter());
+                    myMessage.Label = "First Message";
+
+                    // Send the message.
+                    queue.Send(myMessage, mqt);
+
+                    mqt.Commit();
+                }
+            }            
+        }
+
+        ~ServiceBus()
+        {
+            _continue = false;
+        }
+
+
+        public void Dispose()
+        {
+            _continue = false;
+        }
+    }
+}
