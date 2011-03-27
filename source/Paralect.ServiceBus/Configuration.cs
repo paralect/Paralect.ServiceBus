@@ -12,6 +12,9 @@ namespace Paralect.ServiceBus
         private EndpointsMapping _endpointsMapping = new EndpointsMapping();
         private QueueName _inputQueue;
         private QueueName _errorQueue;
+        private Type _messageHandlerMarkerInterface = typeof(IMessageHandler<>);
+        private Int32 _numberOfWorkerThreads = 1;
+        private Int32 _maxRetries = 1;
 
         public HandlerRegistry HandlerRegistry
         {
@@ -33,10 +36,20 @@ namespace Paralect.ServiceBus
             get { return _errorQueue; }
         }
 
-//        public Int32 NumberOfWorkerThreads { get; set; }
-//        public Int32 MaxRetries { get; set; }
+        public Type MessageHandlerMarkerInterface
+        {
+            get { return _messageHandlerMarkerInterface; }
+        }
 
-        public Type MessageHandlerMarkerInterface = typeof(IMessageHandler<>);
+        public int NumberOfWorkerThreads
+        {
+            get { return _numberOfWorkerThreads; }
+        }
+
+        public int MaxRetries
+        {
+            get { return _maxRetries; }
+        }
 
         public Configuration AddEndpoint(String typeWildcard, params String[] queueNames)
         {
@@ -53,6 +66,24 @@ namespace Paralect.ServiceBus
         public Configuration SetErrorQueue(String queueName)
         {
             _errorQueue = new QueueName(queueName);
+            return this;
+        }
+
+        public Configuration SetHandlerMarkerInterface(Type markerInterface)
+        {
+            _messageHandlerMarkerInterface = markerInterface;
+            return this;
+        }
+
+        public Configuration SetNumberOfWorkerThreads(Int32 number)
+        {
+            _numberOfWorkerThreads = number;
+            return this;
+        }
+
+        public Configuration SetMaxRetries(Int32 maxRetries)
+        {
+            _maxRetries = maxRetries;
             return this;
         }
     }
