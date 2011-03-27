@@ -12,7 +12,7 @@ namespace Paralect.ServiceBus
         private readonly Configuration _configuration;
         private static object receivingLock = new object();
         private Thread _workerThread;
-        private Boolean _continue = true;
+        private InputQueueListener _inputQueueListener;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
@@ -37,32 +37,13 @@ namespace Paralect.ServiceBus
 
         protected void BackgroundThread(object state)
         {
-            var dispatcher = new Dispatcher.Dispatcher(_configuration.BusContainer, _configuration.HandlerRegistry);
-
-            using (var queue = new MessageQueue(_configuration.InputQueue.GetQueueFormatName()))
-            {
-                queue.Formatter = new MessageFormatter();
-
-                while(_continue)
-                {
-                    try
-                    {
-                        var message = queue.Receive(new TimeSpan(0, 0, 2));
-                        var obj = message.Body;
-
-                        dispatcher.Dispatch(obj);
-
-
-                    }
-                    catch (MessageQueueException mqe)
-                    {
-                        if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                            continue;
-                    }
-
-                    // handle obj
-                }
-            }
+            var dispatcher = new Dispatcher.Dispatcher(
+                _configuration.BusContainer, 
+                _configuration.HandlerRegistry,
+                _configuration.MaxRetries);
+            
+            _inputQueueListener = new InputQueueListener(_configuration, dispatcher);
+            _inputQueueListener.Listen();
         }
 
         public void CheckAvailabilityOfQueue(QueueName queue)
@@ -113,13 +94,13 @@ namespace Paralect.ServiceBus
 
         ~ServiceBus()
         {
-            _continue = false;
+            _inputQueueListener.Stop();
         }
 
 
         public void Dispose()
         {
-            _continue = false;
+            _inputQueueListener.Stop();
         }
     }
 }

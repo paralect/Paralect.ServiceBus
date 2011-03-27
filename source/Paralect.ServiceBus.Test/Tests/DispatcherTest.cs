@@ -19,7 +19,7 @@ namespace Paralect.ServiceBus.Test.Tests
             var registrator = new HandlerRegistry();
             registrator.Register(Assembly.GetExecutingAssembly(), new string[] {});
 
-            var dispatcher = new Dispatcher.Dispatcher(unity, registrator);
+            var dispatcher = new Dispatcher.Dispatcher(unity, registrator, 1);
 
             var message = new SimpleMessage1();
             dispatcher.Dispatch(message);

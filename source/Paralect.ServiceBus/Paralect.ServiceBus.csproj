@@ -50,9 +50,12 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="Dispatcher\Dispatcher.cs" />
+    <Compile Include="Dispatcher\DispatcherException.cs" />
+    <Compile Include="Dispatcher\HandlerException.cs" />
     <Compile Include="Dispatcher\HandlerRegistry.cs" />
     <Compile Include="EndpointsMapping.cs" />
     <Compile Include="IMessageHandler.cs" />
+    <Compile Include="InputQueueListener.cs" />
     <Compile Include="QueueName.cs" />
     <Compile Include="ServiceBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

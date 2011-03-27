@@ -7,14 +7,16 @@ namespace Paralect.ServiceBus.Dispatcher
     {
         private readonly IUnityContainer _container;
         private readonly HandlerRegistry _registry;
+        private readonly int _maxRetries;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public Dispatcher(IUnityContainer container, HandlerRegistry registry)
+        public Dispatcher(IUnityContainer container, HandlerRegistry registry, Int32 maxRetries)
         {
             _container = container;
             _registry = registry;
+            _maxRetries = maxRetries;
         }
 
         public void Dispatch(Object message)
@@ -25,14 +27,41 @@ namespace Paralect.ServiceBus.Dispatcher
             {
                 var handler = _container.Resolve(handlerType);
 
-//                var methodInfo = handler.GetType().GetMethod("Handle", new[] { message.GetType() });
-//                methodInfo.Invoke(handler, new [] {message });
+                var attempt = 0;
+                while (attempt < _maxRetries)
+                {
+                    try
+                    {
+                        InvokeDynamic(handler, message);
 
-                dynamic dynamicHandler = handler;
-                dynamic dynamicMessage = message;
+                        // message handled correctly - so that should be 
+                        // the final attempt
+                        attempt = _maxRetries;
+                    }
+                    catch (Exception exception)
+                    {
+                        attempt++;
 
-                dynamicHandler.Handle(dynamicMessage);
+                        if (attempt == _maxRetries)
+                            throw new HandlerException(String.Format(
+                                "Exception in the handler {0} for message {1}", handler.GetType().FullName, message.GetType().FullName), exception, message);
+                    }
+                }
             }
+        }
+
+        public void InvokeDynamic(Object handler, Object message)
+        {
+            dynamic dynamicHandler = handler;
+            dynamic dynamicMessage = message;
+
+            dynamicHandler.Handle(dynamicMessage);
+        }
+
+        public void InvokeByReflection(Object handler, Object message)
+        {
+            var methodInfo = handler.GetType().GetMethod("Handle", new[] { message.GetType() });
+            methodInfo.Invoke(handler, new [] {message });
         }
     }
 }
