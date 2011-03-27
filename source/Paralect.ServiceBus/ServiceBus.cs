@@ -37,6 +37,8 @@ namespace Paralect.ServiceBus
 
         protected void BackgroundThread(object state)
         {
+            var dispatcher = new Dispatcher.Dispatcher(_configuration.BusContainer, _configuration.HandlerRegistry);
+
             using (var queue = new MessageQueue(_configuration.InputQueue.GetQueueFormatName()))
             {
                 queue.Formatter = new MessageFormatter();
@@ -45,9 +47,10 @@ namespace Paralect.ServiceBus
                 {
                     try
                     {
-                        var message = queue.Receive(new TimeSpan(0, 0, 3));
+                        var message = queue.Receive(new TimeSpan(0, 0, 2));
                         var obj = message.Body;
 
+                        dispatcher.Dispatch(obj);
 
 
                     }
@@ -98,6 +101,14 @@ namespace Paralect.ServiceBus
                     }
                 }                        
             }
+        }
+
+        /// <summary>
+        /// For now Publish() behaves as Send(). Subscription not yet implemented.
+        /// </summary>
+        public void Publish(Object message)
+        {
+            Send(message);
         }
 
         ~ServiceBus()

@@ -31,7 +31,7 @@ namespace Paralect.ServiceBus.Dispatcher
         /// <summary>
         /// 
         /// </summary>
-        public void RegisterAssemblies(Assembly[] assemblies, String[] namespaces)
+ /*       public void RegisterAssemblies(Assembly[] assemblies, String[] namespaces)
         {
             var searchTarget = _markerInterface;
 
@@ -45,6 +45,32 @@ namespace Paralect.ServiceBus.Dispatcher
                 .ToDictionary(g => g.Key, g => g.ToList());
 
             _subscription = dict; 
+        }*/
+
+        public void Register(Assembly assembly, String[] namespaces)
+        {
+            var searchTarget = _markerInterface;
+
+            var assemblySubscriptions = assembly
+                .GetTypes()
+                    .Where(t => BelongToNamespaces(t, namespaces))
+                .SelectMany(t => t.GetInterfaces()
+                                    .Where(i => i.IsGenericType
+                                    && (i.GetGenericTypeDefinition() == searchTarget)
+                                    && !i.ContainsGenericParameters),
+                            (t, i) => new { Key = i.GetGenericArguments()[0], Value = t })
+                .GroupBy(x => x.Key, x => x.Value)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var key in assemblySubscriptions.Keys)
+            {
+                var types = assemblySubscriptions[key];
+
+                if (!_subscription.ContainsKey(key))
+                    _subscription[key] = new List<Type>();
+
+                _subscription[key].AddRange(types);
+            }
         }
 
         public Boolean BelongToNamespaces(Type type, String[] namespaces)

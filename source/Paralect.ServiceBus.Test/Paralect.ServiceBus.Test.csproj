@@ -51,12 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Handlers\MessageHandler.cs" />
     <Compile Include="Handlers\SimpleHandler.cs" />
-    <Compile Include="Messages\SimpleMessage.cs" />
+    <Compile Include="Messages\SimpleMessage1.cs" />
     <Compile Include="Messages\SimpleMessage2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Messages\SimpleMessage3.cs" />
     <Compile Include="Tests\MsmqTests.cs" />
     <Compile Include="Tests\DispatcherTest.cs" />
+    <Compile Include="Tests\ServiceBusTests.cs" />
     <Compile Include="Tracker.cs" />
   </ItemGroup>
   <ItemGroup>

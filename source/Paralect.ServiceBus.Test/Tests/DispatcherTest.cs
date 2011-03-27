@@ -17,18 +17,18 @@ namespace Paralect.ServiceBus.Test.Tests
             unity.RegisterInstance(tracker);
 
             var registrator = new HandlerRegistry();
-            registrator.RegisterAssemblies(new[] { Assembly.GetExecutingAssembly() }, new string[] {});
+            registrator.Register(Assembly.GetExecutingAssembly(), new string[] {});
 
             var dispatcher = new Dispatcher.Dispatcher(unity, registrator);
 
-            var message = new SimpleMessage();
+            var message = new SimpleMessage1();
             dispatcher.Dispatch(message);
 
             var message2 = new SimpleMessage2();
             dispatcher.Dispatch(message2);
 
             Assert.AreEqual(2, tracker.Handlers.Count);
-            Assert.AreEqual(typeof(SimpleMessage), tracker.Handlers[0]);
+            Assert.AreEqual(typeof(SimpleMessage1), tracker.Handlers[0]);
             Assert.AreEqual(typeof(SimpleMessage2), tracker.Handlers[1]);
         }
     }

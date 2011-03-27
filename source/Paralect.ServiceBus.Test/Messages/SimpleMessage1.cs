@@ -1,6 +1,6 @@
 ﻿namespace Paralect.ServiceBus.Test.Messages
 {
-    public class SimpleMessage
+    public class SimpleMessage1
     {
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using Microsoft.Practices.Unity;
 using Paralect.ServiceBus.Dispatcher;
 
 namespace Paralect.ServiceBus
@@ -15,6 +17,7 @@ namespace Paralect.ServiceBus
         private Type _messageHandlerMarkerInterface = typeof(IMessageHandler<>);
         private Int32 _numberOfWorkerThreads = 1;
         private Int32 _maxRetries = 1;
+        private IUnityContainer _busContainer;
 
         public HandlerRegistry HandlerRegistry
         {
@@ -51,6 +54,19 @@ namespace Paralect.ServiceBus
             get { return _maxRetries; }
         }
 
+        public IUnityContainer BusContainer
+        {
+            get { return _busContainer; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:System.Object"/> class.
+        /// </summary>
+        public Configuration(IUnityContainer busContainer)
+        {
+            _busContainer = busContainer;
+        }
+
         public Configuration AddEndpoint(String typeWildcard, params String[] queueNames)
         {
             _endpointsMapping.Map(typeWildcard, queueNames);
@@ -85,6 +101,17 @@ namespace Paralect.ServiceBus
         {
             _maxRetries = maxRetries;
             return this;
+        }
+
+        public Configuration AddHandlers(Assembly assembly, String[] namespaces)
+        {
+            _handlerRegistry.Register(assembly, namespaces);
+            return this;
+        }
+
+        public Configuration AddHandlers(Assembly assembly)
+        {
+            return AddHandlers(assembly, new string[] { });
         }
     }
 }
