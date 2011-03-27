@@ -50,19 +50,19 @@ namespace Paralect.ServiceBus.Test.Tests
         [Test]
         public void TestSend()
         {
-            var config = new Configuration();
-            config.EndpointsMapping.Map("Paralect.ServiceBus.Test.Tests", "PSB.App2.Input");
-            config.InputQueue = new QueueName("PSB.App1.Input");
-            config.ErrorQueue = new QueueName("PSB.App1.Error");
+            var config = new Configuration()
+                .AddEndpoint("Paralect.ServiceBus.Test.Tests", "PSB.App2.Input")
+                .SetInputQueue("PSB.App1.Input")
+                .SetErrorQueue("PSB.App1.Error");
 
             var bus = new ServiceBus(config);
             bus.Run();
 
 
-            var config2 = new Configuration();
-            config2.EndpointsMapping.Map("Paralect.ServiceBus.Test.Tests", "PSB.App1.Input");
-            config2.InputQueue = new QueueName("PSB.App2.Input");
-            config2.ErrorQueue = new QueueName("PSB.App2.Error");
+            var config2 = new Configuration()
+                .AddEndpoint("Paralect.ServiceBus.Test.Tests", "PSB.App1.Input")
+                .SetInputQueue("PSB.App2.Input")
+                .SetErrorQueue("PSB.App2.Error");
 
             var bus2 = new ServiceBus(config2);
             bus2.Run();

@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.Unity;
 
 namespace Paralect.ServiceBus.Dispatcher
 {
-    public class HandlerRegistrator
+    public class HandlerRegistry
     {
-        private readonly IUnityContainer _container;
-        private readonly Type _markerInterface;
+        private Type _markerInterface;
+
+        public Type MarkerInterface
+        {
+            get { return _markerInterface; }
+            set { _markerInterface = value; }
+        }
 
         /// <summary>
         /// Message type -> Handler type
@@ -19,21 +23,23 @@ namespace Paralect.ServiceBus.Dispatcher
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public HandlerRegistrator(IUnityContainer container, Type markerInterface)
+        public HandlerRegistry()
         {
-            _container = container;
-            _markerInterface = markerInterface;
+            _markerInterface = typeof(IMessageHandler<>);
         }
 
-        public void RegisterAssemblies(Assembly[] assemblies)
+        /// <summary>
+        /// 
+        /// </summary>
+        public void RegisterAssemblies(Assembly[] assemblies, String[] namespaces)
         {
             var searchTarget = _markerInterface;
 
-            var dict = assemblies.SelectMany(a => a.GetTypes())
+            var dict = assemblies.SelectMany(a => a.GetTypes().Where(t => BelongToNamespaces(t, namespaces)))
                 .SelectMany(t => t.GetInterfaces()
                                     .Where(i => i.IsGenericType
-                                        && (i.GetGenericTypeDefinition() == searchTarget)
-                                        && !i.ContainsGenericParameters),
+                                    && (i.GetGenericTypeDefinition() == searchTarget)
+                                    && !i.ContainsGenericParameters),
                             (t, i) => new { Key = i.GetGenericArguments()[0], Value = t })
                 .GroupBy(x => x.Key, x => x.Value)
                 .ToDictionary(g => g.Key, g => g.ToList());
@@ -41,9 +47,24 @@ namespace Paralect.ServiceBus.Dispatcher
             _subscription = dict; 
         }
 
+        public Boolean BelongToNamespaces(Type type, String[] namespaces)
+        {
+            // if no namespaces specified - then type belong to any namespace
+            if (namespaces.Length == 0)
+                return true;
+
+            foreach (var ns in namespaces)
+            {
+                if (type.FullName.StartsWith(ns))
+                    return true;
+            }
+
+            return false;
+        }
+
         public List<Type> GetHandlersType(Type messageType)
         {
-            String errorMessage = String.Format("Handler for type {0} don't found.", messageType.FullName);
+            String errorMessage = String.Format("Handler for type {0} doesn't found.", messageType.FullName);
 
             if (!_subscription.ContainsKey(messageType))
                 throw new Exception(errorMessage);

@@ -16,8 +16,8 @@ namespace Paralect.ServiceBus.Test.Tests
             var tracker = new Tracker();
             unity.RegisterInstance(tracker);
 
-            var registrator = new HandlerRegistrator(unity, typeof(IMessageHandler<>));
-            registrator.RegisterAssemblies(new[] { Assembly.GetExecutingAssembly() });
+            var registrator = new HandlerRegistry();
+            registrator.RegisterAssemblies(new[] { Assembly.GetExecutingAssembly() }, new string[] {});
 
             var dispatcher = new Dispatcher.Dispatcher(unity, registrator);
 

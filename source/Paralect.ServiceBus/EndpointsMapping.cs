@@ -8,18 +8,18 @@ namespace Paralect.ServiceBus
     public class EndpointsMapping
     {
         private List<String> _typeNames = new List<string>();
-        private Dictionary<String, QueueName> _typeNamesMap = new Dictionary<string, QueueName>();
+        private Dictionary<String, QueueName[]> _typeNamesMap = new Dictionary<string, QueueName[]>();
 
-        public void Map(String typeName, String queueName)
+        public void Map(String typeName, String[] queueName)
         {
             _typeNames.Add(typeName);
-            _typeNamesMap.Add(typeName, new QueueName(queueName));
+            _typeNamesMap.Add(typeName, queueName.Select(name => new QueueName(name)).ToArray());
         }
 
         /// <summary>
         /// Should be cashed
         /// </summary>
-        public QueueName GetQueue(Type type)
+        public QueueName[] GetQueues(Type type)
         {
             var name = type.FullName;
 

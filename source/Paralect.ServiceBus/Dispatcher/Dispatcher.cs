@@ -6,20 +6,20 @@ namespace Paralect.ServiceBus.Dispatcher
     public class Dispatcher
     {
         private readonly IUnityContainer _container;
-        private readonly HandlerRegistrator _registrator;
+        private readonly HandlerRegistry _registry;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public Dispatcher(IUnityContainer container, HandlerRegistrator registrator)
+        public Dispatcher(IUnityContainer container, HandlerRegistry registry)
         {
             _container = container;
-            _registrator = registrator;
+            _registry = registry;
         }
 
         public void Dispatch(Object message)
         {
-            var handlerTypes = _registrator.GetHandlersType(message.GetType());
+            var handlerTypes = _registry.GetHandlersType(message.GetType());
 
             foreach (var handlerType in handlerTypes)
             {

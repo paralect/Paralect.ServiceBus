@@ -18,12 +18,19 @@ namespace Paralect.ServiceBus
         {
             var parts = path.Split('@');
             Name = parts[0];
-            ComputerName = (parts.Length == 2) ? parts[1] : ".";
+            ComputerName = (parts.Length == 2) ? parts[1] : Environment.MachineName;
         }
 
-        public String GetQueuePath()
+        public String GetQueueFormatName()
         {
-            return String.Format(@"{0}\private$\{1}", ComputerName, Name);
+            // FormatName:Direct=OS:machinename\\private$\\queue
+            return String.Format(@"FormatName:DIRECT=OS:{0}\private$\{1}", ComputerName, Name);
+        }
+
+
+        public String GetQueueLocalName()
+        {
+            return String.Format(@"{0}\private$\{1}", ".", Name);
         }
     }
 }

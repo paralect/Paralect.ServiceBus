@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="Dispatcher\Dispatcher.cs" />
-    <Compile Include="Dispatcher\HandlerRegistrator.cs" />
+    <Compile Include="Dispatcher\HandlerRegistry.cs" />
     <Compile Include="EndpointsMapping.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="QueueName.cs" />

@@ -37,7 +37,7 @@ namespace Paralect.ServiceBus
 
         protected void BackgroundThread(object state)
         {
-            using (var queue = new MessageQueue(_configuration.InputQueue.GetQueuePath()))
+            using (var queue = new MessageQueue(_configuration.InputQueue.GetQueueFormatName()))
             {
                 queue.Formatter = new MessageFormatter();
 
@@ -64,37 +64,40 @@ namespace Paralect.ServiceBus
 
         public void CheckAvailabilityOfQueue(QueueName queue)
         {
-            if (!MessageQueue.Exists(queue.GetQueuePath()))
+            if (!MessageQueue.Exists(queue.GetQueueLocalName()))
             {
-                MessageQueue.Create(queue.GetQueuePath(), true); // transactional
+                MessageQueue.Create(queue.GetQueueLocalName(), true); // transactional
             }            
         }
 
         public void Send(Object message)
         {
-            var queueName = _configuration.EndpointsMapping.GetQueue(message.GetType());
+            var queueName = _configuration.EndpointsMapping.GetQueues(message.GetType());
 
-            // Open the queue.
-            using (var queue = new MessageQueue(queueName.GetQueuePath()))
+            foreach (var name in queueName)
             {
-                // Set the formatter to JSON.
-                queue.Formatter = new MessageFormatter();
-
-                // Since we're using a transactional queue, make a transaction.
-                using (MessageQueueTransaction mqt = new MessageQueueTransaction())
+                // Open the queue.
+                using (var queue = new MessageQueue(name.GetQueueFormatName()))
                 {
-                    mqt.Begin();
+                    // Set the formatter to JSON.
+                    queue.Formatter = new MessageFormatter();
 
-                    // Create a simple text message.
-                    Message myMessage = new Message(message, new MessageFormatter());
-                    myMessage.Label = "First Message";
+                    // Since we're using a transactional queue, make a transaction.
+                    using (MessageQueueTransaction mqt = new MessageQueueTransaction())
+                    {
+                        mqt.Begin();
 
-                    // Send the message.
-                    queue.Send(myMessage, mqt);
+                        // Create a simple text message.
+                        Message myMessage = new Message(message, new MessageFormatter());
+                        myMessage.Label = "First Message";
 
-                    mqt.Commit();
-                }
-            }            
+                        // Send the message.
+                        queue.Send(myMessage, mqt);
+
+                        mqt.Commit();
+                    }
+                }                        
+            }
         }
 
         ~ServiceBus()
