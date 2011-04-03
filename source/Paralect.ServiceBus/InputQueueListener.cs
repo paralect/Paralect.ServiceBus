@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Messaging;
 using System.Text;
+using NLog;
 using Paralect.ServiceBus.Dispatcher;
 
 namespace Paralect.ServiceBus
 {
     public class InputQueueListener
     {
+        private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly Configuration _configuration;
         private readonly Dispatcher.Dispatcher _dispatcher;
         private Boolean _continue = true;
@@ -32,8 +35,23 @@ namespace Paralect.ServiceBus
 
         public void Listen()
         {
+            try
+            {
+                WrapInTransaction();
+            }
+            catch (Exception ex)
+            {
+                _logger.Fatal(ex);
+                throw;
+            }
+        }
+
+        private void WrapInTransaction()
+        {
             using (var queue = new MessageQueue(_configuration.InputQueue.GetQueueFormatName()))
             {
+                queue.MessageReadPropertyFilter.ResponseQueue = true;
+                queue.MessageReadPropertyFilter.SourceMachine = true;
                 queue.Formatter = new MessageFormatter();
 
                 while (_continue)
@@ -43,49 +61,82 @@ namespace Paralect.ServiceBus
                     try
                     {
                         transaction.Begin();
-
-                        var message = queue.Receive(new TimeSpan(0, 0, 2), transaction);
-                        var obj = message.Body;
-
-                        _dispatcher.Dispatch(obj);
-
+                        ListenToQueue(queue, transaction);
                         transaction.Commit();
                     }
                     catch (MessageQueueException mqe)
                     {
                         if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                             continue;
-                    }
-                    catch (HandlerException handlerException)
-                    {
-                        var message = handlerException.MessageObject;
-                        SendToErrorQueue(message, transaction);
-                        transaction.Commit();
+
+                        transaction.Abort();
+                        throw;
                     }
                     catch (Exception exception)
                     {
                         transaction.Abort();
+                        throw;
                     }
-
-                    // handle obj
                 }
             }            
         }
 
-        private void SendToErrorQueue(object message, MessageQueueTransaction transaction)
+        private void ListenToQueue(MessageQueue queue, MessageQueueTransaction transaction)
         {
+            Message message = null;
+
+            try
+            {
+                message = queue.Receive(new TimeSpan(0, 0, 2), transaction);
+                var obj = ReadMessageBody(message);
+
+                _logger.Info("Received message {0} from sender {1}@{2}", 
+                    obj.GetType().FullName,
+                    message.ResponseQueue.MachineName,
+                    message.ResponseQueue.QueueName);
+
+                _dispatcher.Dispatch(obj);
+            }
+            catch (HandlerException handlerException)
+            {
+                SendToErrorQueue(message, transaction, handlerException);
+            }
+            catch (DesearilazationException desearilazationException)
+            {
+                SendToErrorQueue(message, transaction, desearilazationException);
+            }
+        }
+
+        private Object ReadMessageBody(Message message)
+        {
+            try
+            {
+                return message.Body;
+            }
+            catch (Exception ex)
+            {
+                throw new DesearilazationException("Error in deserialization of message", ex);
+            }
+        }
+
+        private void SendToErrorQueue(Message message, MessageQueueTransaction transaction, Exception exception)
+        {
+            if (message == null)
+                return;
+
+            if (exception != null)
+                _logger.ErrorException(String.Format("Message {0} was handled maximum number of times and moved to the error queue. ",
+                                             message.Label), exception);
+
             // Open the queue.
             using (var queue = new MessageQueue(_configuration.ErrorQueue.GetQueueLocalName()))
             {
                 // Set the formatter to JSON.
                 queue.Formatter = new MessageFormatter();
-
-                // Create a message.
-                Message myMessage = new Message(message, new MessageFormatter());
-                myMessage.Label = "Error message";
+                message.Formatter = new MessageFormatter();
 
                 // Send the message.
-                queue.Send(myMessage, transaction);
+                queue.Send(message, transaction);
             }
         }
     }

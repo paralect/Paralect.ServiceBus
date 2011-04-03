@@ -28,7 +28,6 @@ namespace Paralect.ServiceBus.Test.Tests
             var bus = new ServiceBus(config);
             bus.Run();
 
-
             var config2 = new Configuration(unity)
                 .SetInputQueue("PSB.App2.Input")
                 .SetErrorQueue("PSB.App2.Error")

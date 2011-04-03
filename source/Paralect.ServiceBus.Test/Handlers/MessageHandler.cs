@@ -16,7 +16,7 @@ namespace Paralect.ServiceBus.Test.Handlers
         {
             Tracker.Handlers.Add(message.GetType());
 
-            throw new Exception();
+            throw new Exception("hello");
         }
     }
 }
