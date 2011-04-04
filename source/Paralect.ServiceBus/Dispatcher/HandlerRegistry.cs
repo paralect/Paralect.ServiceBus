@@ -93,7 +93,8 @@ namespace Paralect.ServiceBus.Dispatcher
             String errorMessage = String.Format("Handler for type {0} doesn't found.", messageType.FullName);
 
             if (!_subscription.ContainsKey(messageType))
-                throw new Exception(errorMessage);
+                return new List<Type>();
+//                throw new Exception(errorMessage);
 
             var handlers = _subscription[messageType];
 
