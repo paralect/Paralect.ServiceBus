@@ -46,12 +46,14 @@ namespace Paralect.ServiceBus
 
         protected void BackgroundThread(object state)
         {
+
+
             var dispatcher = new Dispatcher.Dispatcher(
                 _configuration.BusContainer, 
                 _configuration.HandlerRegistry,
                 _configuration.MaxRetries);
             
-            _inputQueueListener = new InputQueueListener(_configuration, dispatcher);
+            _inputQueueListener = new InputQueueListener(_configuration.InputQueue, _configuration.ErrorQueue, dispatcher);
             _inputQueueListener.Listen();
         }
 

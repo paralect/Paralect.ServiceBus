@@ -12,16 +12,18 @@ namespace Paralect.ServiceBus
     public class InputQueueListener
     {
         private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-        private readonly Configuration _configuration;
+        private readonly QueueName _inputQueue;
+        private readonly QueueName _errorQueue;
         private readonly Dispatcher.Dispatcher _dispatcher;
         private Boolean _continue = true;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InputQueueListener(Configuration configuration, Dispatcher.Dispatcher dispatcher)
+        public InputQueueListener(QueueName inputQueue, QueueName errorQueue, Dispatcher.Dispatcher dispatcher)
         {
-            _configuration = configuration;
+            _inputQueue = inputQueue;
+            _errorQueue = errorQueue;
             _dispatcher = dispatcher;
         }
 
@@ -48,7 +50,7 @@ namespace Paralect.ServiceBus
 
         private void WrapInTransaction()
         {
-            using (var queue = new MessageQueue(_configuration.InputQueue.GetQueueFormatName()))
+            using (var queue = new MessageQueue(_inputQueue.GetQueueFormatName()))
             {
                 queue.MessageReadPropertyFilter.ResponseQueue = true;
                 queue.MessageReadPropertyFilter.SourceMachine = true;
@@ -129,7 +131,7 @@ namespace Paralect.ServiceBus
                                              message.Label), exception);
 
             // Open the queue.
-            using (var queue = new MessageQueue(_configuration.ErrorQueue.GetQueueLocalName()))
+            using (var queue = new MessageQueue(_errorQueue.GetQueueLocalName()))
             {
                 // Set the formatter to JSON.
                 queue.Formatter = new MessageFormatter();

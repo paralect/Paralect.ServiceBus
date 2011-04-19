@@ -32,5 +32,10 @@ namespace Paralect.ServiceBus
         {
             return String.Format(@"{0}\private$\{1}", ".", Name);
         }
+
+        public String GetFriendlyName()
+        {
+            return String.Format("{0}@{1}", Name, ComputerName);
+        }
     }
 }
