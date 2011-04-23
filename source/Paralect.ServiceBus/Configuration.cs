@@ -12,6 +12,7 @@ namespace Paralect.ServiceBus
     {
         private HandlerRegistry _handlerRegistry = new HandlerRegistry();
         private EndpointsMapping _endpointsMapping = new EndpointsMapping();
+
         private QueueName _inputQueue;
         private QueueName _errorQueue;
         private Type _messageHandlerMarkerInterface = typeof(IMessageHandler<>);
@@ -106,6 +107,12 @@ namespace Paralect.ServiceBus
         public Configuration AddHandlers(Assembly assembly, String[] namespaces)
         {
             _handlerRegistry.Register(assembly, namespaces);
+            return this;
+        }
+
+        public Configuration AddInterceptor(Type interceptor)
+        {
+            _handlerRegistry.AddInterceptor(interceptor);
             return this;
         }
 

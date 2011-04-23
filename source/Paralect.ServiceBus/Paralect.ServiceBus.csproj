@@ -58,6 +58,8 @@
     <Compile Include="Dispatcher\DispatcherException.cs" />
     <Compile Include="Dispatcher\HandlerException.cs" />
     <Compile Include="Dispatcher\HandlerRegistry.cs" />
+    <Compile Include="Dispatcher\InvocationContext.cs" />
+    <Compile Include="IMessageHandlerInterceptor.cs" />
     <Compile Include="EndpointsMapping.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IMessageHandler.cs" />

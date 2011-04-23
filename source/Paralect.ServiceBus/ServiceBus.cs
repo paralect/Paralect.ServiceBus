@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
+using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -11,8 +12,7 @@ namespace Paralect.ServiceBus
     public class ServiceBus : IDisposable, IBus
     {
         private readonly Configuration _configuration;
-        private static object receivingLock = new object();
-        private Thread _workerThread;
+        private Thread _queueListenerThread;
         private InputQueueListener _inputQueueListener;
         private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -34,27 +34,59 @@ namespace Paralect.ServiceBus
             CheckAvailabilityOfQueue(_configuration.InputQueue);
             CheckAvailabilityOfQueue(_configuration.ErrorQueue);
 
-            _workerThread = new Thread(BackgroundThread)
+            _queueListenerThread = new Thread(QueueListenerThread)
             {
                 Name = "Paralect Service Bus Worker Thread #" + 1,
                 IsBackground = true,
             };
-            _workerThread.Start();
+            _queueListenerThread.Start();
 
             _logger.Info("Paralect Service bus started...");
         }
 
-        protected void BackgroundThread(object state)
+        protected void QueueListenerThread(object state)
         {
+            // Only one instance of ServiceBus should listen to a particular Input Queue.
 
+            SecurityIdentifier securityIdentifier = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            MutexSecurity mutexSecurity = new MutexSecurity();
+            MutexAccessRule rule = new MutexAccessRule(securityIdentifier, MutexRights.FullControl, AccessControlType.Allow);
+            mutexSecurity.AddAccessRule(rule);
 
-            var dispatcher = new Dispatcher.Dispatcher(
-                _configuration.BusContainer, 
-                _configuration.HandlerRegistry,
-                _configuration.MaxRetries);
-            
-            _inputQueueListener = new InputQueueListener(_configuration.InputQueue, _configuration.ErrorQueue, dispatcher);
-            _inputQueueListener.Listen();
+            bool mutexIsNew = false;
+
+            String mutexName = String.Format("Paralect.ServiceBus.{0}", _configuration.InputQueue.GetFriendlyName());
+            Mutex queueMutex = new Mutex(false, mutexName, out mutexIsNew, mutexSecurity);
+            Boolean owned = false;
+
+            try
+            {
+                while (!owned)
+                {
+                    try { owned = queueMutex.WaitOne(-1, false); }
+                    // Our resource (queue) supposed to be always in the valid state. 
+                    // That is why we are ignoring AbandonedMutexException.
+                    // http://msdn.microsoft.com/en-us/library/system.threading.abandonedmutexexception.aspx
+                    catch (AbandonedMutexException ex) {  }
+                }
+
+                var dispatcher = new Dispatcher.Dispatcher(
+                    _configuration.BusContainer,
+                    _configuration.HandlerRegistry,
+                    _configuration.MaxRetries);
+
+                _inputQueueListener = new InputQueueListener(_configuration.InputQueue, _configuration.ErrorQueue, dispatcher);
+                _inputQueueListener.Listen();
+            }
+            finally 
+            {
+                if (owned)
+                {
+                    queueMutex.ReleaseMutex();
+                    queueMutex.Close();
+                }
+
+            }
         }
 
         public void CheckAvailabilityOfQueue(QueueName queue)

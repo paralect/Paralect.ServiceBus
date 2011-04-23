@@ -32,7 +32,20 @@ namespace Paralect.ServiceBus.Dispatcher
                 {
                     try
                     {
-                        InvokeDynamic(handler, message);
+                        var context = new InvocationContext(this, handler, message);
+
+                        if (_registry.Interceptors.Count > 0)
+                        {
+                            foreach (var interceptorType in _registry.Interceptors)
+                            {
+                                var interceptor = (IMessageHandlerInterceptor) _container.Resolve(interceptorType);
+                                context = new InterceptorInvocationContext(interceptor, context);
+                            }
+                        }
+
+                        context.Invoke();
+
+//                        InvokeDynamic(handler, message);
 
                         // message handled correctly - so that should be 
                         // the final attempt

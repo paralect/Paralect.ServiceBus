@@ -21,6 +21,19 @@ namespace Paralect.ServiceBus.Dispatcher
         private Dictionary<Type, List<Type>> _subscription = new Dictionary<Type, List<Type>>();
 
         /// <summary>
+        /// Message interceptors
+        /// </summary>
+        private List<Type> _interceptors = new List<Type>();
+
+        /// <summary>
+        /// Message interceptors
+        /// </summary>
+        public List<Type> Interceptors
+        {
+            get { return _interceptors; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
         public HandlerRegistry()
@@ -73,7 +86,18 @@ namespace Paralect.ServiceBus.Dispatcher
             }
         }
 
-        public Boolean BelongToNamespaces(Type type, String[] namespaces)
+        public void AddInterceptor(Type type)
+        {
+            if (!typeof(IMessageHandlerInterceptor).IsAssignableFrom(type))
+                throw new Exception(String.Format("Interceptor {0} must implement IMessageHandlerInterceptor", type.FullName));
+
+            if (_interceptors.Contains(type))
+                throw new Exception(String.Format("Interceptor {0} already registered", type.FullName));
+
+            _interceptors.Add(type);
+        }
+
+        private Boolean BelongToNamespaces(Type type, String[] namespaces)
         {
             // if no namespaces specified - then type belong to any namespace
             if (namespaces.Length == 0)
