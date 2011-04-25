@@ -36,72 +36,50 @@ namespace Paralect.ServiceBus
 
             _queueListenerThread = new Thread(QueueListenerThread)
             {
-                Name = "Paralect Service Bus Worker Thread #" + 1,
+                Name = String.Format("Paralect Service Bus {0} Worker Thread #{1}", _configuration.Name, 1),
                 IsBackground = true,
             };
             _queueListenerThread.Start();
 
-            _logger.Info("Paralect Service bus started...");
+            _logger.Info("Paralect Service [{0}] bus started...", _configuration.Name);
         }
 
         protected void QueueListenerThread(object state)
         {
-            // Only one instance of ServiceBus should listen to a particular Input Queue.
-
-            SecurityIdentifier securityIdentifier = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-            MutexSecurity mutexSecurity = new MutexSecurity();
-            MutexAccessRule rule = new MutexAccessRule(securityIdentifier, MutexRights.FullControl, AccessControlType.Allow);
-            mutexSecurity.AddAccessRule(rule);
-
-            bool mutexIsNew = false;
-
+            // Only one instance of ServiceBus should listen to a particular queue
             String mutexName = String.Format("Paralect.ServiceBus.{0}", _configuration.InputQueue.GetFriendlyName());
-            Mutex queueMutex = new Mutex(false, mutexName, out mutexIsNew, mutexSecurity);
-            Boolean owned = false;
 
-            try
+            MutexFactory.LockByMutex(mutexName, () =>
             {
-                while (!owned)
-                {
-                    try { owned = queueMutex.WaitOne(-1, false); }
-                    // Our resource (queue) supposed to be always in the valid state. 
-                    // That is why we are ignoring AbandonedMutexException.
-                    // http://msdn.microsoft.com/en-us/library/system.threading.abandonedmutexexception.aspx
-                    catch (AbandonedMutexException ex) {  }
-                }
-
                 var dispatcher = new Dispatcher.Dispatcher(
                     _configuration.BusContainer,
                     _configuration.HandlerRegistry,
                     _configuration.MaxRetries);
 
-                _inputQueueListener = new InputQueueListener(_configuration.InputQueue, _configuration.ErrorQueue, dispatcher);
-                _inputQueueListener.Listen();
-            }
-            finally 
-            {
-                if (owned)
-                {
-                    queueMutex.ReleaseMutex();
-                    queueMutex.Close();
-                }
-
-            }
+                _inputQueueListener = new InputQueueListener(_configuration.Name, _configuration.InputQueue, _configuration.ErrorQueue, dispatcher);
+                _inputQueueListener.Listen();                
+            });
         }
 
         public void CheckAvailabilityOfQueue(QueueName queue)
         {
-            var userName = WindowsIdentity.GetCurrent().Name;
+            // Only one instance of ServiceBus should create queue
+            String mutexName = String.Format("Paralect.ServiceBus.{0}", _configuration.InputQueue.GetFriendlyName());
 
-            if (!MessageQueue.Exists(queue.GetQueueLocalName()))
+            MutexFactory.LockByMutex(mutexName, () =>
             {
-                MessageQueue.Create(queue.GetQueueLocalName(), true); // transactional
-                SetPermissionsForQueue(queue.GetQueueLocalName(), userName);
-            }
-            else
-            {
-                SetPermissionsForQueue(queue.GetQueueLocalName(), userName);
-            }
+                var userName = WindowsIdentity.GetCurrent().Name;
+
+                if (!MessageQueue.Exists(queue.GetQueueLocalName()))
+                {
+                    MessageQueue.Create(queue.GetQueueLocalName(), true); // transactional
+                    SetPermissionsForQueue(queue.GetQueueLocalName(), userName);
+                }
+                else
+                {
+                    SetPermissionsForQueue(queue.GetQueueLocalName(), userName);
+                }
+            });
         }
 
         /// <summary>
@@ -109,7 +87,7 @@ namespace Paralect.ServiceBus
         /// </summary>
         /// <param name="queue"></param>
         /// <param name="account"></param>
-        public static void SetPermissionsForQueue(string queue, string account)
+        public void SetPermissionsForQueue(string queue, string account)
         {
             var q = new MessageQueue(queue);
 
@@ -125,7 +103,7 @@ namespace Paralect.ServiceBus
             }
             catch (Exception ex)
             {
-                var message = String.Format("Access to MSMQ queue '{0}' is denied. Please set permission for this queue to be accessable for '{1}' account.", queue, account);
+                var message = String.Format("Access to MSMQ queue '{0}' is denied. Please set permission for this queue to be accessable for '{1}' account. Service Bus [{2}]", queue, account, _configuration.Name);
                 
                 _logger.ErrorException(message, ex);
                 throw new Exception(message, ex);

@@ -10,6 +10,10 @@ namespace Paralect.ServiceBus
 {
     public class Configuration
     {
+        /// <summary>
+        /// Name of instance of ServiceBus. Used for logging.
+        /// </summary>
+        private String _name = "Unnamed";
         private HandlerRegistry _handlerRegistry = new HandlerRegistry();
         private EndpointsMapping _endpointsMapping = new EndpointsMapping();
 
@@ -19,6 +23,14 @@ namespace Paralect.ServiceBus
         private Int32 _numberOfWorkerThreads = 1;
         private Int32 _maxRetries = 1;
         private IUnityContainer _busContainer;
+
+        /// <summary>
+        /// Name of instance of ServiceBus. Used for logging.
+        /// </summary>
+        public string Name
+        {
+            get { return _name; }
+        }
 
         public HandlerRegistry HandlerRegistry
         {
@@ -71,6 +83,12 @@ namespace Paralect.ServiceBus
         public Configuration AddEndpoint(String typeWildcard, params String[] queueNames)
         {
             _endpointsMapping.Map(typeWildcard, queueNames);
+            return this;
+        }
+
+        public Configuration SetName(String name)
+        {
+            _name = name;
             return this;
         }
 

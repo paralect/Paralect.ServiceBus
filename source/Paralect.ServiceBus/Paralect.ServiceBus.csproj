@@ -64,6 +64,7 @@
     <Compile Include="IBus.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="InputQueueListener.cs" />
+    <Compile Include="MutexFactory.cs" />
     <Compile Include="QueueName.cs" />
     <Compile Include="ServiceBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -12,6 +12,7 @@ namespace Paralect.ServiceBus
     public class InputQueueListener
     {
         private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly string _serviceBusName;
         private readonly QueueName _inputQueue;
         private readonly QueueName _errorQueue;
         private readonly Dispatcher.Dispatcher _dispatcher;
@@ -20,8 +21,9 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InputQueueListener(QueueName inputQueue, QueueName errorQueue, Dispatcher.Dispatcher dispatcher)
+        public InputQueueListener(String serviceBusName, QueueName inputQueue, QueueName errorQueue, Dispatcher.Dispatcher dispatcher)
         {
+            _serviceBusName = serviceBusName;
             _inputQueue = inputQueue;
             _errorQueue = errorQueue;
             _dispatcher = dispatcher;
@@ -43,8 +45,9 @@ namespace Paralect.ServiceBus
             }
             catch (Exception ex)
             {
-                _logger.Fatal(ex);
-                throw;
+                var wrapper = new Exception(String.Format("Fatal exception in Service Bus [{0}]", _serviceBusName), ex);
+                _logger.Fatal(wrapper);
+                throw wrapper;
             }
         }
 
