@@ -36,16 +36,16 @@ namespace Paralect.ServiceBus.Dispatcher
 
                         if (_registry.Interceptors.Count > 0)
                         {
-                            foreach (var interceptorType in _registry.Interceptors)
+                            // Call interceptors in backward order
+                            for (int i = _registry.Interceptors.Count - 1; i >= 0; i--)
                             {
+                                var interceptorType = _registry.Interceptors[i];
                                 var interceptor = (IMessageHandlerInterceptor) _container.Resolve(interceptorType);
                                 context = new InterceptorInvocationContext(interceptor, context);
                             }
                         }
 
                         context.Invoke();
-
-//                        InvokeDynamic(handler, message);
 
                         // message handled correctly - so that should be 
                         // the final attempt

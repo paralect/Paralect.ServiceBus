@@ -34,7 +34,8 @@ namespace Paralect.ServiceBus.Test.Tests
                 .SetErrorQueue("PSB.App2.Error")
                 .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App1.Input1")
                 .AddHandlers(Assembly.GetExecutingAssembly())
-                .AddInterceptor(typeof(SimpleInterceptor));
+                .AddInterceptor(typeof(FirstInterceptor))
+                .AddInterceptor(typeof(SecondInterceptor));
 
             var bus2 = new ServiceBus(config2);
             bus2.Run();
@@ -47,12 +48,13 @@ namespace Paralect.ServiceBus.Test.Tests
 
             bus.Send(msg);
 
-            Thread.Sleep(4000);
+            Thread.Sleep(3000);
 
             Assert.AreEqual(1, tracker.Handlers.Count);
-            Assert.AreEqual(1, tracker.Interceptors.Count);
+            Assert.AreEqual(2, tracker.Interceptors.Count);
             Assert.AreEqual(typeof(SimpleMessage3), tracker.Handlers[0]);
-            Assert.AreEqual(typeof(SimpleInterceptor), tracker.Interceptors[0]);
+            Assert.AreEqual(typeof(FirstInterceptor), tracker.Interceptors[0]);
+            Assert.AreEqual(typeof(SecondInterceptor), tracker.Interceptors[1]);
         }
     }
 }

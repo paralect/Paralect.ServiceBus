@@ -54,7 +54,7 @@
   <ItemGroup>
     <Compile Include="Handlers\MessageHandler.cs" />
     <Compile Include="Handlers\SimpleHandler.cs" />
-    <Compile Include="Interceptors\SimpleInterceptor.cs" />
+    <Compile Include="Interceptors\FirstInterceptor.cs" />
     <Compile Include="Messages\SimpleMessage1.cs" />
     <Compile Include="Messages\SimpleMessage2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

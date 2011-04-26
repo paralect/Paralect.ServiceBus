@@ -7,7 +7,7 @@ using Paralect.ServiceBus.Dispatcher;
 
 namespace Paralect.ServiceBus.Test.Interceptors
 {
-    public class SimpleInterceptor : IMessageHandlerInterceptor
+    public class FirstInterceptor : IMessageHandlerInterceptor
     {
         [Dependency]
         public Tracker Tracker { get; set; }
@@ -16,6 +16,19 @@ namespace Paralect.ServiceBus.Test.Interceptors
         {
             Tracker.Interceptors.Add(GetType());
             
+            context.Invoke();
+        }
+    }
+
+    public class SecondInterceptor : IMessageHandlerInterceptor
+    {
+        [Dependency]
+        public Tracker Tracker { get; set; }
+
+        public void Intercept(InvocationContext context)
+        {
+            Tracker.Interceptors.Add(GetType());
+
             context.Invoke();
         }
     }
