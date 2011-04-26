@@ -46,7 +46,7 @@ namespace Paralect.ServiceBus.Test.Tests
 
             bus.Send(msg);
 
-            Thread.Sleep(8000);
+            Thread.Sleep(3000);
 
             Assert.AreEqual(1, tracker.Handlers.Count);
             Assert.AreEqual(typeof(SimpleMessage3), tracker.Handlers[0]);

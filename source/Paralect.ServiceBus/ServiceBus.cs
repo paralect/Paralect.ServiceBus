@@ -34,37 +34,39 @@ namespace Paralect.ServiceBus
             CheckAvailabilityOfQueue(_configuration.InputQueue);
             CheckAvailabilityOfQueue(_configuration.ErrorQueue);
 
+            var dispatcher = new Dispatcher.Dispatcher(
+                _configuration.BusContainer,
+                _configuration.HandlerRegistry,
+                _configuration.MaxRetries);
+
+            _inputQueueListener = new InputQueueListener(_configuration.Name, _configuration.InputQueue, _configuration.ErrorQueue, dispatcher);
+
             _queueListenerThread = new Thread(QueueListenerThread)
             {
                 Name = String.Format("Paralect Service Bus {0} Worker Thread #{1}", _configuration.Name, 1),
                 IsBackground = true,
             };
-            _queueListenerThread.Start();
-
-            _logger.Info("Paralect Service [{0}] bus started...", _configuration.Name);
+            _queueListenerThread.Start(_inputQueueListener);
         }
 
         protected void QueueListenerThread(object state)
         {
+            var inputQueueListener = (InputQueueListener) state;
+
             // Only one instance of ServiceBus should listen to a particular queue
             String mutexName = String.Format("Paralect.ServiceBus.{0}", _configuration.InputQueue.GetFriendlyName());
 
             MutexFactory.LockByMutex(mutexName, () =>
             {
-                var dispatcher = new Dispatcher.Dispatcher(
-                    _configuration.BusContainer,
-                    _configuration.HandlerRegistry,
-                    _configuration.MaxRetries);
-
-                _inputQueueListener = new InputQueueListener(_configuration.Name, _configuration.InputQueue, _configuration.ErrorQueue, dispatcher);
-                _inputQueueListener.Listen();                
+                _logger.Info("Paralect Service [{0}] bus started and listen to the {1} queue...", _configuration.Name, _configuration.InputQueue.GetFriendlyName());
+                inputQueueListener.Listen();
             });
         }
 
         public void CheckAvailabilityOfQueue(QueueName queue)
         {
             // Only one instance of ServiceBus should create queue
-            String mutexName = String.Format("Paralect.ServiceBus.{0}", _configuration.InputQueue.GetFriendlyName());
+            String mutexName = String.Format("Paralect.ServiceBus.QueueChecker.{0}", _configuration.InputQueue.GetFriendlyName());
 
             MutexFactory.LockByMutex(mutexName, () =>
             {
@@ -185,6 +187,8 @@ namespace Paralect.ServiceBus
 
         public void Dispose()
         {
+            _logger.Info("Paralect Service [{0}] bus stopped", _configuration.Name);
+
             if (_inputQueueListener != null)
                 _inputQueueListener.Stop();
         }

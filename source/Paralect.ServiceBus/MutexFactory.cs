@@ -10,6 +10,8 @@ namespace Paralect.ServiceBus
 {
     public static class MutexFactory
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static Mutex CreateMutexWithFullControlRights(String name, out Boolean createdNew)
         {
             SecurityIdentifier securityIdentifier = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
@@ -22,7 +24,7 @@ namespace Paralect.ServiceBus
         public static void LockByMutex(String name, Action action)
         {
             bool mutexIsNew = false;
-            Mutex queueMutex = MutexFactory.CreateMutexWithFullControlRights(name, out mutexIsNew);
+            Mutex queueMutex = CreateMutexWithFullControlRights(name, out mutexIsNew);
             Boolean owned = false;
 
             try
@@ -44,6 +46,7 @@ namespace Paralect.ServiceBus
                 {
                     queueMutex.ReleaseMutex();
                     queueMutex.Close();
+                    
                 }
             }            
         }
