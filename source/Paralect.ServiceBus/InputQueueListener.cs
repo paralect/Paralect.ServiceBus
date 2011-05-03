@@ -43,10 +43,15 @@ namespace Paralect.ServiceBus
             {
                 WrapInTransaction();
             }
+            catch (System.Threading.ThreadAbortException abortException)
+            {
+                var wrapper = new Exception(String.Format("Thread listener was aborted in Service Bus [{0}]", _serviceBusName), abortException);
+                _logger.FatalException("", wrapper);
+            }
             catch (Exception ex)
             {
                 var wrapper = new Exception(String.Format("Fatal exception in Service Bus [{0}]", _serviceBusName), ex);
-                _logger.Fatal(wrapper);
+                _logger.FatalException("", wrapper);
                 throw wrapper;
             }
         }
