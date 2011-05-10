@@ -1,32 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Messaging;
 using System.Text;
+using System.Threading;
 using NLog;
 using Paralect.ServiceBus.Dispatcher;
 
-namespace Paralect.ServiceBus
+namespace Paralect.ServiceBus.Msmq
 {
-    public class InputQueueListener
+    public class MsmqQueueObserver : IQueueObserver
     {
+        public event Action<Object> NewMessageArrived;
+
         private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly string _serviceBusName;
         private readonly QueueName _inputQueue;
         private readonly QueueName _errorQueue;
-        private readonly Dispatcher.Dispatcher _dispatcher;
         private Boolean _continue = true;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InputQueueListener(String serviceBusName, QueueName inputQueue, QueueName errorQueue, Dispatcher.Dispatcher dispatcher)
+        public MsmqQueueObserver(String serviceBusName, QueueName inputQueue, QueueName errorQueue)
         {
             _serviceBusName = serviceBusName;
             _inputQueue = inputQueue;
             _errorQueue = errorQueue;
-            _dispatcher = dispatcher;
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Paralect.ServiceBus
             {
                 queue.MessageReadPropertyFilter.ResponseQueue = true;
                 queue.MessageReadPropertyFilter.SourceMachine = true;
-                queue.Formatter = new MessageFormatter();
+                queue.Formatter = new MsmqMessageFormatter();
 
                 while (_continue)
                 {
@@ -105,7 +105,9 @@ namespace Paralect.ServiceBus
                     message.ResponseQueue.MachineName,
                     message.ResponseQueue.QueueName);
 
-                _dispatcher.Dispatch(obj);
+                var arrived = NewMessageArrived;
+                if (arrived != null)
+                    arrived(obj);
             }
             catch (HandlerException handlerException)
             {
@@ -142,8 +144,8 @@ namespace Paralect.ServiceBus
             using (var queue = new MessageQueue(_errorQueue.GetQueueLocalName()))
             {
                 // Set the formatter to JSON.
-                queue.Formatter = new MessageFormatter();
-                message.Formatter = new MessageFormatter();
+                queue.Formatter = new MsmqMessageFormatter();
+                message.Formatter = new MsmqMessageFormatter();
 
                 // Send the message.
                 queue.Send(message, transaction);

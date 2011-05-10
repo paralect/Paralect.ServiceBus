@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 
 namespace Paralect.ServiceBus
 {
-    public class MessageFormatter : IMessageFormatter
+    public class MsmqMessageFormatter : IMessageFormatter
     {
         public object Clone()
         {
-            return new MessageFormatter();
+            return new MsmqMessageFormatter();
         }
 
         public bool CanRead(Message message)

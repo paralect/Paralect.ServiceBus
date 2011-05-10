@@ -34,7 +34,7 @@ namespace Paralect.ServiceBus.Test.Tests
         public void SendMessage(Object message, MessageQueue queue)
         {
             var mqMessage = new Message();
-            mqMessage.Formatter = new MessageFormatter();
+            mqMessage.Formatter = new MsmqMessageFormatter();
             mqMessage.Body = message;
 
             queue.Send(mqMessage);
@@ -42,7 +42,7 @@ namespace Paralect.ServiceBus.Test.Tests
 
         public Object ReceiveMessage(MessageQueue queue)
         {
-            queue.Formatter = new MessageFormatter();
+            queue.Formatter = new MsmqMessageFormatter();
             var mqMessage = queue.Receive();
 
             return mqMessage.Body;
