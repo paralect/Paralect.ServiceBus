@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Paralect.ServiceBus.Test")]
+[assembly: AssemblyTitle("Paralect.ServiceBus")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Paralect.ServiceBus.Test")]
+[assembly: AssemblyProduct("Paralect.ServiceBus")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("28053c39-15c7-4c64-86bc-36f9f00cc96e")]
+[assembly: Guid("8819d5a6-7b02-440a-b987-99598e219d73")]
 
 // Version information for an assembly consists of the following four values:
 //

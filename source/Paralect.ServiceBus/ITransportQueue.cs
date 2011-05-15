@@ -1,6 +1,6 @@
 namespace Paralect.ServiceBus
 {
-    public interface IBus
+    public interface ITransportQueue
     {
         
     }

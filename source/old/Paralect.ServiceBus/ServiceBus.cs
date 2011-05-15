@@ -34,13 +34,12 @@ namespace Paralect.ServiceBus
                 _configuration.MaxRetries);
 
             _queueTransport = new MsmqQueueTransport(_configuration);
-            _queueTransport.QueueObserver.NewMessageArrived += QueueObserver_NewMessageArrived;
-            _queueTransport.Start();
-        }
+            _queueTransport.QueueObserver.NewMessageArrived += message =>
+            {
+                _dispatcher.Dispatch(message); ;
+            };
 
-        void QueueObserver_NewMessageArrived(object obj)
-        {
-            _dispatcher.Dispatch(obj);
+            _queueTransport.Start();
         }
 
         /// <summary>

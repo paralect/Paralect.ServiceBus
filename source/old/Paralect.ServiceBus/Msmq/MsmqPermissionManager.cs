@@ -17,8 +17,10 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Sets default permissions for queue.
         /// </summary>
-        public static void SetPermissionsForQueue(MessageQueue q, string account)
+        public static void SetPermissionsForQueue(string queue, string account, string configurationName)
         {
+            var q = new MessageQueue(queue);
+
             try
             {
                 q.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
@@ -31,7 +33,7 @@ namespace Paralect.ServiceBus.Msmq
             }
             catch (Exception ex)
             {
-                var message = String.Format("Access to MSMQ queue '{0}' is denied. Please set permission for this queue to be accessable for '{1}' account.", q.Path, account);
+                var message = String.Format("Access to MSMQ queue '{0}' is denied. Please set permission for this queue to be accessable for '{1}' account. Service Bus [{2}]", queue, account, configurationName);
 
                 _logger.ErrorException(message, ex);
                 throw new Exception(message, ex);

@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{033B65FF-E437-4182-AC05-71A93CAD8B7F}</ProjectGuid>
+    <ProjectGuid>{EF81BE5C-1ED9-4A19-A342-7147A0817880}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Paralect.ServiceBus</RootNamespace>
@@ -35,12 +35,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\libs\Microsoft.Practices.Unity\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
-    <Reference Include="MongoDB.Bson">
-      <HintPath>..\..\libs\MongoDriver\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver">
-      <HintPath>..\..\libs\MongoDriver\MongoDB.Driver.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\libs\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -51,6 +45,10 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Reactive, Version=1.0.10425.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\libs\ReactiveExtensions\System.Reactive.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -58,16 +56,41 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bus2\Bus.cs" />
+    <Compile Include="Bus2\MsmqQueue.cs" />
+    <Compile Include="Bus2\ObserversMananger.cs" />
+    <Compile Include="Bus2\SynchronousInMemoryBusQueue.cs" />
+    <Compile Include="Bus2\Disposable.cs" />
+    <Compile Include="Bus2\IBus.cs" />
+    <Compile Include="Bus2\IBusQueue.cs" />
+    <Compile Include="Bus3\MsmqQueue.cs" />
+    <Compile Include="Bus3\MsmqTransportMessage.cs" />
+    <Compile Include="Bus3\TransportMessage.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Exceptions\DesearilazationException.cs" />
+    <Compile Include="Dispatcher\Dispatcher.cs" />
+    <Compile Include="Dispatcher\DispatcherException.cs" />
+    <Compile Include="Dispatcher\HandlerException.cs" />
+    <Compile Include="Dispatcher\HandlerRegistry.cs" />
+    <Compile Include="Dispatcher\InvocationContext.cs" />
+    <Compile Include="IMessageHandlerInterceptor.cs" />
+    <Compile Include="EndpointsMapping.cs" />
     <Compile Include="IBus.cs" />
-    <Compile Include="ITransportQueue.cs" />
-    <Compile Include="Msmq\MsmqMessageFormatter.cs" />
+    <Compile Include="IMessageHandler.cs" />
+    <Compile Include="IQueueObserver.cs" />
+    <Compile Include="IQueueTransport.cs" />
+    <Compile Include="Messages\ShutdownBusMessage.cs" />
     <Compile Include="Msmq\MsmqPermissionManager.cs" />
-    <Compile Include="Msmq\MsmqTransportManager.cs" />
-    <Compile Include="Msmq\MsmqTransportQueue.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Msmq\MsmqQueueObserver.cs" />
+    <Compile Include="Msmq\MsmqQueueTransport.cs" />
+    <Compile Include="MutexFactory.cs" />
     <Compile Include="QueueName.cs" />
-    <Compile Include="TransportMessage.cs" />
+    <Compile Include="ServiceBus.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Msmq\MsmqMessageFormatter.cs" />
+    <Compile Include="Msmq\MessageJsonConverter.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

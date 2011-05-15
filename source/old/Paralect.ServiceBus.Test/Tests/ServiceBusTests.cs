@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -34,9 +35,10 @@ namespace Paralect.ServiceBus.Test.Tests
                 .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App1.Input")
                 .AddHandlers(Assembly.GetExecutingAssembly());
 
-            var bus2 = new ServiceBus(config2);
-            bus2.Run();
+            
 
+            var bus2 = new ServiceBus(config2);
+            bus2.Run() ;
 
             var msg = new SimpleMessage3
             {
@@ -47,6 +49,8 @@ namespace Paralect.ServiceBus.Test.Tests
             bus.Send(msg);
 
             Thread.Sleep(3000);
+            bus2.Dispose();
+            bus.Dispose();
 
             Assert.AreEqual(1, tracker.Handlers.Count);
             Assert.AreEqual(typeof(SimpleMessage3), tracker.Handlers[0]);
