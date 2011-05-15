@@ -58,16 +58,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\TransportMessageDeserializationException.cs" />
+    <Compile Include="Exceptions\TransportTimeoutException.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="ITransportManager.cs" />
     <Compile Include="ITransportQueue.cs" />
+    <Compile Include="Messages\ShutdownMessage.cs" />
     <Compile Include="Msmq\MsmqMessageFormatter.cs" />
     <Compile Include="Msmq\MsmqPermissionManager.cs" />
     <Compile Include="Msmq\MsmqTransportManager.cs" />
     <Compile Include="Msmq\MsmqTransportQueue.cs" />
+    <Compile Include="MutexFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueName.cs" />
     <Compile Include="TransportMessage.cs" />
+    <Compile Include="TransportObserver.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

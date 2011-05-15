@@ -4,7 +4,7 @@ using System.Security.Principal;
 
 namespace Paralect.ServiceBus.Msmq
 {
-    public class MsmqTransportManager
+    public class MsmqTransportManager : ITransportManager
     {
         /// <summary>
         /// Check existence of queue
@@ -17,11 +17,11 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Create queue
         /// </summary>
-        public MsmqTransportQueue Create(QueueName queueName)
+        public ITransportQueue Create(QueueName queueName)
         {
             var queue = MessageQueue.Create(queueName.GetQueueLocalName(), true); // transactional
             SetupQueue(queue);
-            return new MsmqTransportQueue(queue);
+            return new MsmqTransportQueue(queueName, queue, this);
         }
 
         /// <summary>
@@ -35,12 +35,12 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Open queue
         /// </summary>
-        public MsmqTransportQueue Open(QueueName queueName)
+        public ITransportQueue Open(QueueName queueName)
         {
             using (var queue = new MessageQueue(queueName.GetQueueFormatName()))
             {
                 SetupQueue(queue);
-                return new MsmqTransportQueue(queue);
+                return new MsmqTransportQueue(queueName, queue, this);
             }
         }
 

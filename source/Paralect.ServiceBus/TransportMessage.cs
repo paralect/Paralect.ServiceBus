@@ -4,6 +4,9 @@ namespace Paralect.ServiceBus
 {
     public class TransportMessage
     {
+        public String SentFromComputerName { get; set; }
+        public String SentFromQueueName { get; set; }
+
         public Object[] Messages { get; set; }
 
         /// <summary>

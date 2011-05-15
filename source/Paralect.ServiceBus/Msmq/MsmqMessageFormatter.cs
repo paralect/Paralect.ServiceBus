@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace Paralect.ServiceBus
+namespace Paralect.ServiceBus.Msmq
 {
     public class MsmqMessageFormatter : IMessageFormatter
     {
@@ -22,26 +22,18 @@ namespace Paralect.ServiceBus
         public object Read(Message message)
         {
             JsonSerializer jsonSerializer = CreateJsonSerializer();
-
             JsonReader reader = CreateJsonReader(message.BodyStream);
-
             var messages = jsonSerializer.Deserialize<Object>(reader);
-
             return messages;
         }
 
         public void Write(Message message, object obj)
         {
             Stream stm = new MemoryStream();
-
             JsonSerializer jsonSerializer = CreateJsonSerializer();
-
             JsonWriter jsonWriter = CreateJsonWriter(stm);
-
             jsonSerializer.Serialize(jsonWriter, obj);
-
             jsonWriter.Flush();
-
             message.BodyStream = stm;
         }
 
@@ -53,8 +45,7 @@ namespace Paralect.ServiceBus
                 TypeNameHandling = TypeNameHandling.Objects
             };
 
-//            serializerSettings.Converters.Add(new MessageJsonConverter());
-
+            //serializerSettings.Converters.Add(new MessageJsonConverter());
             return JsonSerializer.Create(serializerSettings);
         }
 
