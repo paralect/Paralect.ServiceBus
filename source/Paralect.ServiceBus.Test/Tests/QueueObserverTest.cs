@@ -7,7 +7,7 @@ using Paralect.ServiceBus.Test.Messages;
 namespace Paralect.ServiceBus.Test.Tests
 {
     [TestFixture]
-    public class TransportObserverTest
+    public class QueueObserverTest
     {
         [Test]
         public void ObserveTest()

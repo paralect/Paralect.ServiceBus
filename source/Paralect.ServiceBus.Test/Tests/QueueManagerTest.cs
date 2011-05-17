@@ -2,10 +2,10 @@ using System;
 using NUnit.Framework;
 using Paralect.ServiceBus.Msmq;
 
-namespace Paralect.ServiceBus.Test.Tests.Msmq
+namespace Paralect.ServiceBus.Test.Tests
 {
     [TestFixture]
-    public class MsmqTransportManagerTest
+    public class QueueManagerTest
     {
         [Test]
         public void JustCreation()

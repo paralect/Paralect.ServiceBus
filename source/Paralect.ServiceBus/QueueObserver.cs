@@ -6,13 +6,13 @@ using Paralect.ServiceBus.Utils;
 
 namespace Paralect.ServiceBus
 {
-    public class QueueObserver : IDisposable
+    public class QueueObserver : IQueueObserver
     {
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
         private readonly IQueue _queue;
         private Thread _observerThread;
         private Boolean _continue;
-        public event Action<QueueMessage, QueueObserver> MessageReceived;
+        public event Action<QueueMessage, IQueueObserver> MessageReceived;
 
         public IQueue Queue
         {

@@ -1,13 +1,11 @@
 using System;
-using System.Messaging;
 using NUnit.Framework;
-using Paralect.ServiceBus.Msmq;
 using Paralect.ServiceBus.Test.Messages;
 
-namespace Paralect.ServiceBus.Test.Tests.Msmq
+namespace Paralect.ServiceBus.Test.Tests
 {
     [TestFixture]
-    public class MsmqTransportQueueTest
+    public class QueueTest
     {
         [Test]
         public void PurgingWhenJustCreated()

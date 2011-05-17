@@ -68,11 +68,13 @@
     <Compile Include="IQueueManager.cs" />
     <Compile Include="IQueue.cs" />
     <Compile Include="IMessageTranslator.cs" />
+    <Compile Include="IQueueObserver.cs" />
     <Compile Include="Msmq\MsmqMessageFormatter.cs" />
     <Compile Include="Msmq\MsmqMessageTranslator.cs" />
     <Compile Include="Msmq\MsmqPermissionManager.cs" />
     <Compile Include="Msmq\MsmqQueueManager.cs" />
     <Compile Include="Msmq\MsmqQueue.cs" />
+    <Compile Include="QueueSynchronousObserver.cs" />
     <Compile Include="Utils\MutexFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueMessage.cs" />

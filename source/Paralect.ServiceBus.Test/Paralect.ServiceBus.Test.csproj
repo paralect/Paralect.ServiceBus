@@ -53,9 +53,9 @@
     <Compile Include="Messages\Message2.cs" />
     <Compile Include="ObjectComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests\Msmq\MsmqTransportManagerTest.cs" />
-    <Compile Include="Tests\Msmq\MsmqTransportQueueTest.cs" />
-    <Compile Include="Tests\TransportObserverTest.cs" />
+    <Compile Include="Tests\QueueManagerTest.cs" />
+    <Compile Include="Tests\QueueTest.cs" />
+    <Compile Include="Tests\QueueObserverTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -68,6 +68,7 @@
       <Name>Paralect.ServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

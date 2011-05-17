@@ -13,7 +13,7 @@ namespace Paralect.ServiceBus
             _observer.MessageReceived += Observer_MessageReceived;
         }
 
-        void Observer_MessageReceived(QueueMessage queueMessage, QueueObserver queueObserver)
+        void Observer_MessageReceived(QueueMessage queueMessage, IQueueObserver queueObserver)
         {
             var transportMessage = queueObserver.Queue.Manager.Translator.TranslateToTransportMessage(queueMessage);
 
