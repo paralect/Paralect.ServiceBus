@@ -2,17 +2,14 @@ using System;
 
 namespace Paralect.ServiceBus
 {
-    public interface ITransportManager
+    public interface IQueueManager
     {
+        IMessageTranslator Translator { get; set; }
+
         /// <summary>
         /// Check existence of queue
         /// </summary>
         Boolean Exists(QueueName queueName);
-
-        /// <summary>
-        /// Create queue
-        /// </summary>
-        ITransportQueue Create(QueueName queueName);
 
         /// <summary>
         /// Delete particular queue
@@ -20,8 +17,13 @@ namespace Paralect.ServiceBus
         void Delete(QueueName queueName);
 
         /// <summary>
+        /// Create queue
+        /// </summary>
+        IQueue Create(QueueName queueName);
+
+        /// <summary>
         /// Open queue
         /// </summary>
-        ITransportQueue Open(QueueName queueName);        
+        IQueue Open(QueueName queueName);
     }
 }

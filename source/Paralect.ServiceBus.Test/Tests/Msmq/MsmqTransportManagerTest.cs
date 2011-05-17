@@ -10,7 +10,7 @@ namespace Paralect.ServiceBus.Test.Tests.Msmq
         [Test]
         public void JustCreation()
         {
-            Helper.CreateQueue((queue, manager) =>
+            Helper.CreateQueue(queue =>
             {
                 // nothing here
             });
@@ -19,9 +19,9 @@ namespace Paralect.ServiceBus.Test.Tests.Msmq
         [Test]
         public void ExistCheck()
         {
-            Helper.CreateQueue((queue, manager) =>
+            Helper.CreateQueue(queue =>
             {
-                var exists = manager.Exists(queue);
+                var exists = queue.Manager.Exists(queue.Name);
                 Assert.AreEqual(exists, true);
             });
         }
@@ -30,7 +30,7 @@ namespace Paralect.ServiceBus.Test.Tests.Msmq
         public void NotExistCheck()
         {
             var name = new QueueName(Guid.NewGuid().ToString());
-            var manager = new MsmqTransportManager();
+            var manager = new MsmqQueueManager();
             var exists = manager.Exists(name);
             Assert.AreEqual(exists, false);
         }

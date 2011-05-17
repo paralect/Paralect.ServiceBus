@@ -14,27 +14,49 @@ namespace Paralect.ServiceBus.Test.Tests
         {
             Helper.CreateAndOpenQueue(queue =>
             {
+                var messageCount = 0;
                 var transportMessage = new TransportMessage(new object[]
                 {
                     new Message1("MessageName", 2011)
                 });
 
-                queue.Send(transportMessage);
-                queue.Send(transportMessage);
-                queue.Send(transportMessage);
-
-                TransportObserver observer = new TransportObserver(queue);
-                var messageCount = 0;
-                observer.MessageReceived += (message, ob) =>
+                using(var observer = new QueueObserver(queue))
                 {
-                    messageCount++;
-                    Helper.AssertTransportMessage(transportMessage, message);
-                };
+                    observer.MessageReceived += (message, ob) =>
+                    {
+                        messageCount++;
+                        Helper.AssertTransportMessage(transportMessage,
+                            queue.Manager.Translator.TranslateToTransportMessage(message));
+                    };
 
-                observer.Start();
-                observer.StopAndWait();
+                    observer.Start();
+                    queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                    queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                    queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+
+                    observer.Wait();
+                }
 
                 Assert.AreEqual(messageCount, 3);
+            });
+        }
+
+        [Test]
+        public void TestIt()
+        {
+            Helper.CreateAndOpenQueue(queue =>
+            {
+                var transportMessage = new TransportMessage(new object[]
+                {
+                    new Message1("MessageName", 2011)
+                });
+
+                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+
+                var queue2 = queue.Manager.Open(queue.Name);
+                queue2.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+
+//                manager.SendStopMessages(queue.Name, "hello");
             });
         }
     }

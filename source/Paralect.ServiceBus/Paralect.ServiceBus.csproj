@@ -61,18 +61,22 @@
     <Compile Include="Exceptions\TransportMessageDeserializationException.cs" />
     <Compile Include="Exceptions\TransportTimeoutException.cs" />
     <Compile Include="IBus.cs" />
-    <Compile Include="ITransportManager.cs" />
-    <Compile Include="ITransportQueue.cs" />
-    <Compile Include="Messages\ShutdownMessage.cs" />
+    <Compile Include="IQueueManager.cs" />
+    <Compile Include="IQueue.cs" />
+    <Compile Include="IMessageTranslator.cs" />
     <Compile Include="Msmq\MsmqMessageFormatter.cs" />
+    <Compile Include="Msmq\MsmqMessageTranslator.cs" />
     <Compile Include="Msmq\MsmqPermissionManager.cs" />
-    <Compile Include="Msmq\MsmqTransportManager.cs" />
-    <Compile Include="Msmq\MsmqTransportQueue.cs" />
-    <Compile Include="MutexFactory.cs" />
+    <Compile Include="Msmq\MsmqQueueManager.cs" />
+    <Compile Include="Msmq\MsmqQueue.cs" />
+    <Compile Include="Utils\MutexFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueueMessage.cs" />
+    <Compile Include="QueueMessageType.cs" />
     <Compile Include="QueueName.cs" />
+    <Compile Include="ServiceBus.cs" />
     <Compile Include="TransportMessage.cs" />
-    <Compile Include="TransportObserver.cs" />
+    <Compile Include="QueueObserver.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

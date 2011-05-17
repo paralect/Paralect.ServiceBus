@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,26 +23,20 @@ namespace Paralect.ServiceBus.Test
             }
         }
 
-
-        public static void CreateAndOpenQueue(Action<MsmqTransportQueue> action)
-        {
-            CreateAndOpenQueue((queue, manager) =>
-            {
-                action(queue);
-            });
-        }
-
-        public static void CreateAndOpenQueue(Action<MsmqTransportQueue, MsmqTransportManager> action)
+        public static void CreateAndOpenQueue(Action<IQueue> action)
         {
             var name = new QueueName(Guid.NewGuid().ToString());
-            var manager = new MsmqTransportManager();
+            var manager = new MsmqQueueManager();
 
             try
             {
                 manager.Create(name);
-                var queue = manager.Open(name);
 
-                action((MsmqTransportQueue)queue, manager);
+                using(var queue = manager.Open(name))
+                {
+                    action(queue);
+                }
+                
             }
             finally
             {
@@ -50,15 +44,15 @@ namespace Paralect.ServiceBus.Test
             }
         }
 
-        public static void CreateQueue(Action<QueueName, MsmqTransportManager> action)
+        public static void CreateQueue(Action<IQueue> action)
         {
             var name = new QueueName(Guid.NewGuid().ToString());
-            var manager = new MsmqTransportManager();
+            var manager = new MsmqQueueManager();
 
             try
             {
-                manager.Create(name);
-                action(name, manager);
+                var queue = manager.Create(name);
+                action(queue);
             }
             finally
             {

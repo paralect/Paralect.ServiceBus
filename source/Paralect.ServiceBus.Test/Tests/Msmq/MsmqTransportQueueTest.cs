@@ -1,4 +1,5 @@
 using System;
+using System.Messaging;
 using NUnit.Framework;
 using Paralect.ServiceBus.Msmq;
 using Paralect.ServiceBus.Test.Messages;
@@ -20,22 +21,24 @@ namespace Paralect.ServiceBus.Test.Tests.Msmq
         [Test]
         public void SendAndReceiveSingleMessage()
         {
-            Helper.CreateAndOpenQueue((queue, manager) =>
+            Helper.CreateAndOpenQueue(queue =>
             {
                 var transportMessage = new TransportMessage(new object[]
                 {
                     new Message1("MessageName", 2011)
                 });
 
-                queue.Send(transportMessage);
-                Helper.AssertTransportMessage(transportMessage, queue.Receive(TimeSpan.FromSeconds(5)));
+                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+
+                Helper.AssertTransportMessage(transportMessage,
+                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             });
         }      
   
         [Test]
         public void SendAndReceiveMultipleMessage()
         {
-            Helper.CreateAndOpenQueue((queue, manager) =>
+            Helper.CreateAndOpenQueue(queue =>
             {
                 var transportMessage = new TransportMessage(new object[]
                 {
@@ -46,15 +49,17 @@ namespace Paralect.ServiceBus.Test.Tests.Msmq
                     new Message2("MessageName5", 2015),
                 });
 
-                queue.Send(transportMessage);
-                Helper.AssertTransportMessage(transportMessage, queue.Receive(TimeSpan.FromSeconds(5)));
+                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+
+                Helper.AssertTransportMessage(transportMessage,
+                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             });
         }  
 
         [Test]
         public void SendTwiceAndReceiveMultipleMessage()
         {
-            Helper.CreateAndOpenQueue((queue, manager) =>
+            Helper.CreateAndOpenQueue(queue =>
             {
                 var transportMessage = new TransportMessage(new object[]
                 {
@@ -65,10 +70,14 @@ namespace Paralect.ServiceBus.Test.Tests.Msmq
                     new Message2("MessageName5", 2015),
                 });
 
-                queue.Send(transportMessage);
-                queue.Send(transportMessage);
-                Helper.AssertTransportMessage(transportMessage, queue.Receive(TimeSpan.FromSeconds(5)));
-                Helper.AssertTransportMessage(transportMessage, queue.Receive(TimeSpan.FromSeconds(5)));
+                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+
+                Helper.AssertTransportMessage(transportMessage,
+                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+
+                Helper.AssertTransportMessage(transportMessage,
+                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             });
         }
 
