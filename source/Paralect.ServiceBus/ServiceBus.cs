@@ -15,7 +15,7 @@ namespace Paralect.ServiceBus
 
         void Observer_MessageReceived(QueueMessage queueMessage, IQueueObserver queueObserver)
         {
-            var transportMessage = queueObserver.Queue.Manager.Translator.TranslateToTransportMessage(queueMessage);
+            var transportMessage = queueObserver.QueueManager.Translator.TranslateToTransportMessage(queueMessage);
 
             _errorQueue.Send(queueMessage);
 

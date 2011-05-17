@@ -5,7 +5,7 @@ namespace Paralect.ServiceBus
     public interface IQueueObserver : IDisposable
     {
         event Action<QueueMessage, IQueueObserver> MessageReceived;
-        IQueue Queue { get; }
+        IQueueManager QueueManager { get; }
         void Start();
         void Wait();
     }

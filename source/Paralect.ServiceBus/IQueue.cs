@@ -15,6 +15,11 @@ namespace Paralect.ServiceBus
         IQueueManager Manager { get; }
 
         /// <summary>
+        /// Unique token which identifies this queue instance
+        /// </summary>
+        String Token { get; }
+
+        /// <summary>
         /// Delete all messages from this queue
         /// </summary>
         void Purge();
@@ -28,10 +33,5 @@ namespace Paralect.ServiceBus
         /// Blocking call. 
         /// </summary>
         QueueMessage Receive(TimeSpan timeout);
-
-        /// <summary>
-        /// Send messages which indicates queue listener shutdown
-        /// </summary>
-        void SendStopMessages(Int32 count = 1);
     }
 }

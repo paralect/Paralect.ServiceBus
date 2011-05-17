@@ -20,7 +20,7 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message1("MessageName", 2011)
                 });
 
-                using(var observer = new QueueObserver(queue))
+                using(var observer = new QueueObserver(queue.Manager, queue.Name))
                 {
                     observer.MessageReceived += (message, ob) =>
                     {

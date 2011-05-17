@@ -3,6 +3,7 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus
 {
+    /*
     public class QueueSynchronousObserver : IQueueObserver
     {
         private readonly IQueue _queue;
@@ -57,5 +58,5 @@ namespace Paralect.ServiceBus
             _queue.SendStopMessages();
             throw new NotImplementedException();
         }
-    }
+    }*/
 }

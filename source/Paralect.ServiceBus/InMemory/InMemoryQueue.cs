@@ -15,6 +15,7 @@ namespace Paralect.ServiceBus.InMemory
 
         private readonly QueueName _name;
         private readonly IQueueManager _manager;
+        private String _token = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
@@ -28,6 +29,11 @@ namespace Paralect.ServiceBus.InMemory
         public void Dispose()
         {
             
+        }
+
+        public string Token
+        {
+            get { return _token; }
         }
 
         public QueueName Name
@@ -59,15 +65,6 @@ namespace Paralect.ServiceBus.InMemory
                 throw new TransportTimeoutException("Timeout when receiving message");
 
             return message;
-        }
-
-        public void SendStopMessages(int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                QueueMessage message = new QueueMessage(null, QueueMessageType.Shutdown);
-                _messages.Enqueue(message);
-            }
         }
     }
 }
