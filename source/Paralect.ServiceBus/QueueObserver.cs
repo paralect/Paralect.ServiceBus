@@ -14,6 +14,11 @@ namespace Paralect.ServiceBus
         private Boolean _continue;
         public event Action<QueueMessage, QueueObserver> MessageReceived;
 
+        public IQueue Queue
+        {
+            get { return _queue; }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>

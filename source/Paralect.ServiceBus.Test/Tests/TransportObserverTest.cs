@@ -55,8 +55,6 @@ namespace Paralect.ServiceBus.Test.Tests
 
                 var queue2 = queue.Manager.Open(queue.Name);
                 queue2.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
-
-//                manager.SendStopMessages(queue.Name, "hello");
             });
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Paralect.ServiceBus.InMemory;
 using Paralect.ServiceBus.Msmq;
 
 namespace Paralect.ServiceBus.Test
@@ -26,37 +27,52 @@ namespace Paralect.ServiceBus.Test
         public static void CreateAndOpenQueue(Action<IQueue> action)
         {
             var name = new QueueName(Guid.NewGuid().ToString());
-            var manager = new MsmqQueueManager();
-
-            try
+            
+            var managers = new IQueueManager[]
             {
-                manager.Create(name);
+                new MsmqQueueManager(),
+                new InMemoryQueueManager()
+            };
 
-                using(var queue = manager.Open(name))
+            foreach (var manager in managers)
+            {
+                try
                 {
-                    action(queue);
+                    manager.Create(name);
+
+                    using (var queue = manager.Open(name))
+                    {
+                        action(queue);
+                    }
                 }
-                
-            }
-            finally
-            {
-                manager.Delete(name);
+                finally
+                {
+                    manager.Delete(name);
+                }
             }
         }
 
         public static void CreateQueue(Action<IQueue> action)
         {
             var name = new QueueName(Guid.NewGuid().ToString());
-            var manager = new MsmqQueueManager();
+            
+            var managers = new IQueueManager[]
+            {
+                new MsmqQueueManager(),
+                new InMemoryQueueManager()
+            };
 
-            try
+            foreach (var manager in managers)
             {
-                var queue = manager.Create(name);
-                action(queue);
-            }
-            finally
-            {
-                manager.Delete(name);
+                try
+                {
+                    var queue = manager.Create(name);
+                    action(queue);
+                }
+                finally
+                {
+                    manager.Delete(name);
+                }
             }
         }
     }

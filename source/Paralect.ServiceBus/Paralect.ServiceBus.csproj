@@ -61,6 +61,10 @@
     <Compile Include="Exceptions\TransportMessageDeserializationException.cs" />
     <Compile Include="Exceptions\TransportTimeoutException.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="InMemory\BlockingQueue.cs" />
+    <Compile Include="InMemory\InMemoryMessageTranslator.cs" />
+    <Compile Include="InMemory\InMemoryQueue.cs" />
+    <Compile Include="InMemory\InMemoryQueueManager.cs" />
     <Compile Include="IQueueManager.cs" />
     <Compile Include="IQueue.cs" />
     <Compile Include="IMessageTranslator.cs" />

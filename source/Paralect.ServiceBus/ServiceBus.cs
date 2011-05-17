@@ -4,6 +4,8 @@ namespace Paralect.ServiceBus
 {
     public class ServiceBus : IDisposable
     {
+        private IQueue _inputQueue;
+        private IQueue _errorQueue;
         private QueueObserver _observer;
 
         public void Start()
@@ -13,7 +15,10 @@ namespace Paralect.ServiceBus
 
         void Observer_MessageReceived(QueueMessage queueMessage, QueueObserver queueObserver)
         {
-            
+            var transportMessage = queueObserver.Queue.Manager.Translator.TranslateToTransportMessage(queueMessage);
+
+            _errorQueue.Send(queueMessage);
+
         }
 
         public void Dispose()
