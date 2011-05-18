@@ -58,9 +58,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Dispatching\Dispatcher.cs" />
+    <Compile Include="EndpointsMapping.cs" />
+    <Compile Include="Exceptions\DispatcherException.cs" />
+    <Compile Include="Exceptions\HandlerException.cs" />
+    <Compile Include="Dispatching\HandlerRegistry.cs" />
+    <Compile Include="Dispatching\InvocationContext.cs" />
     <Compile Include="Exceptions\TransportMessageDeserializationException.cs" />
     <Compile Include="Exceptions\TransportTimeoutException.cs" />
     <Compile Include="IBus.cs" />
+    <Compile Include="IMessageHandler.cs" />
+    <Compile Include="IMessageHandlerInterceptor.cs" />
     <Compile Include="InMemory\BlockingQueue.cs" />
     <Compile Include="InMemory\InMemoryQueue.cs" />
     <Compile Include="InMemory\InMemoryQueueProvider.cs" />

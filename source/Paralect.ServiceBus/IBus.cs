@@ -4,8 +4,8 @@ namespace Paralect.ServiceBus
 {
     public interface IBus
     {
-        void Send(params Object[] message);
-        void SendLocal(params Object[] message);
+        void Send(params Object[] messages);
+        void SendLocal(params Object[] messages);
         void Publish(Object message);        
     }
 }

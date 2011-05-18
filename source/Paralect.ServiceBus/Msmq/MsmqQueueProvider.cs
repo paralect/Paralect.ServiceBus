@@ -86,8 +86,25 @@ namespace Paralect.ServiceBus.Msmq
                 throw new ArgumentException("QueueMessage.Message type should be System.Messaging.Message.");
 
             var message = (System.Messaging.Message)queueMessage.Message;
-            var transportMessage = (TransportMessage)ReadMessageBody(message);
-            return transportMessage;
+
+            Object messageObject;
+            try
+            {
+                messageObject = message.Body;
+            }
+            catch (Exception ex)
+            {
+                throw new TransportMessageDeserializationException("Error when deserializing transport message", message, ex);
+            }
+
+            if (messageObject == null)
+                throw new TransportMessageDeserializationException("MessageBody is null - cannot translate to TransportMessage");
+
+            if (!(messageObject is TransportMessage))
+                throw new TransportMessageDeserializationException(String.Format(
+                    "Error when deserializing transport message. Object type is {0} but should be of type TranportMessage", messageObject.GetType().FullName));
+
+            return (TransportMessage) messageObject;
         }
 
         private Object ReadMessageBody(Message message)

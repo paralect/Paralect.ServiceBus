@@ -12,10 +12,8 @@ namespace Paralect.ServiceBus.InMemory
         /// Logger instance (In future we should  go away from NLog dependency)
         /// </summary>
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
-
         private readonly QueueName _name;
         private readonly IQueueProvider _provider;
-        private String _token = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.

@@ -65,11 +65,14 @@ namespace Paralect.ServiceBus
                     try
                     {
                         QueueMessage queueMessage = queue.Receive(TimeSpan.FromDays(10));
+                        
+                        if (queueMessage.MessageType == QueueMessageType.Shutdown)
+                        {
+                            if (queueMessage.MessageId == _shutdownMessageId)
+                                break;
 
-                        // Break on shutdown message
-                        if (queueMessage.MessageType == QueueMessageType.Shutdown &&
-                            queueMessage.MessageId == _shutdownMessageId)
-                            break;
+                            continue;
+                        }
 
                         var received = MessageReceived;
                         if (received != null)
