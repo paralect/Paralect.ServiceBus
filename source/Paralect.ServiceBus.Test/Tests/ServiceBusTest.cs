@@ -20,23 +20,27 @@ namespace Paralect.ServiceBus.Test.Tests
             unity.RegisterInstance(tracker);
 
             var config1 = new Configuration(unity)
-                .MsmqTransport()
-                .SetInputQueue("PSB.App1.Input")
-                .SetErrorQueue("PSB.App1.Error")
-                .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App2.Input");
+                .MsmqTransport();
 
             var config2 = new Configuration(unity)
-                .MsmqTransport()
-                .SetInputQueue("PSB.App2.Input")
+                .MsmqTransport();
+
+            config1.SetInputQueue("PSB.App1.Input")
+                .SetErrorQueue("PSB.App1.Error")
+                .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App2.Input", config2.QueueProvider);
+
+
+
+            config2.SetInputQueue("PSB.App2.Input")
                 .SetErrorQueue("PSB.App2.Error")
-                .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App1.Input")
+                .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App1.Input", config1.QueueProvider)
                 .AddHandlers(Assembly.GetExecutingAssembly());
 
             using (var bus1 = new ServiceBus(config1))
             using (var bus2 = new ServiceBus(config2))
             {
-                bus1.Start();
-                bus2.Start();
+                bus1.Run();
+                bus2.Run();
 
                 var msg = new Message1("Hello", 2010);
 

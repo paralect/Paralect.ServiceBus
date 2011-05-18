@@ -22,45 +22,52 @@ namespace Paralect.ServiceBus.Dispatching
 
         public void Dispatch(Object message)
         {
-            var handlerTypes = _registry.GetHandlersType(message.GetType());
-
-            foreach (var handlerType in handlerTypes)
+            try
             {
-                var handler = _container.Resolve(handlerType);
+                var handlerTypes = _registry.GetHandlersType(message.GetType());
 
-                var attempt = 0;
-                while (attempt < _maxRetries)
+                foreach (var handlerType in handlerTypes)
                 {
-                    try
-                    {
-                        var context = new InvocationContext(this, handler, message);
+                    var handler = _container.Resolve(handlerType);
 
-                        if (_registry.Interceptors.Count > 0)
+                    var attempt = 0;
+                    while (attempt < _maxRetries)
+                    {
+                        try
                         {
-                            // Call interceptors in backward order
-                            for (int i = _registry.Interceptors.Count - 1; i >= 0; i--)
+                            var context = new InvocationContext(this, handler, message);
+
+                            if (_registry.Interceptors.Count > 0)
                             {
-                                var interceptorType = _registry.Interceptors[i];
-                                var interceptor = (IMessageHandlerInterceptor) _container.Resolve(interceptorType);
-                                context = new InterceptorInvocationContext(interceptor, context);
+                                // Call interceptors in backward order
+                                for (int i = _registry.Interceptors.Count - 1; i >= 0; i--)
+                                {
+                                    var interceptorType = _registry.Interceptors[i];
+                                    var interceptor = (IMessageHandlerInterceptor)_container.Resolve(interceptorType);
+                                    context = new InterceptorInvocationContext(interceptor, context);
+                                }
                             }
+
+                            context.Invoke();
+
+                            // message handled correctly - so that should be 
+                            // the final attempt
+                            attempt = _maxRetries;
                         }
+                        catch (Exception exception)
+                        {
+                            attempt++;
 
-                        context.Invoke();
-
-                        // message handled correctly - so that should be 
-                        // the final attempt
-                        attempt = _maxRetries;
-                    }
-                    catch (Exception exception)
-                    {
-                        attempt++;
-
-                        if (attempt == _maxRetries)
-                            throw new HandlerException(String.Format(
-                                "Exception in the handler {0} for message {1}", handler.GetType().FullName, message.GetType().FullName), exception, message);
+                            if (attempt == _maxRetries)
+                                throw new HandlerException(String.Format(
+                                    "Exception in the handler {0} for message {1}", handler.GetType().FullName, message.GetType().FullName), exception, message);
+                        }
                     }
                 }
+            }
+            catch (Exception exception)
+            {
+                throw new DispatchingException("Error when dispatching message", exception);
             }
         }
 

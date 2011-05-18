@@ -87,9 +87,12 @@ namespace Paralect.ServiceBus
             _busContainer = busContainer;
         }
 
-        public Configuration AddEndpoint(String typeWildcard, params String[] queueNames)
+        public Configuration AddEndpoint(String typeWildcard, String queueName, IQueueProvider queueProvider = null)
         {
-            _endpointsMapping.Map(typeWildcard, queueNames);
+            if (queueProvider == null)
+                queueProvider = _queueProvider;
+
+            _endpointsMapping.Map(typeWildcard, queueName, queueProvider);
             return this;
         }
 
@@ -149,6 +152,12 @@ namespace Paralect.ServiceBus
         public Configuration MsmqTransport()
         {
             _queueProvider = new Msmq.MsmqQueueProvider();
+            return this;
+        }
+
+        public Configuration MemoryTransport()
+        {
+            _queueProvider = new InMemory.InMemoryQueueProvider();
             return this;
         }
     }

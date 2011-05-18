@@ -20,7 +20,7 @@ namespace Server
                 .AddHandlers(typeof(Program).Assembly);
 
             var bus = new ServiceBus(config);
-            bus.Start();
+            bus.Run();
 
             Console.WriteLine("Server started. Press enter to send message");
 

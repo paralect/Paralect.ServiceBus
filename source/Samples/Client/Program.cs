@@ -17,7 +17,7 @@ namespace Client
                 .AddHandlers(typeof(Program).Assembly);
 
             var bus = new ServiceBus(config);
-            bus.Start();
+            bus.Run();
 
             Console.WriteLine("Client started. Press enter to send messages.");
 

@@ -7,19 +7,40 @@ namespace Paralect.ServiceBus
 {
     public class EndpointsMapping
     {
-        private List<String> _typeNames = new List<string>();
-        private Dictionary<String, QueueName[]> _typeNamesMap = new Dictionary<string, QueueName[]>();
+        private List<Endpoint> _endpoints = new List<Endpoint>();
 
-        public void Map(String typeName, String[] queueName)
+        public void Map(String typeName, String queueName, IQueueProvider queueProvider)
         {
-            _typeNames.Add(typeName);
-            _typeNamesMap.Add(typeName, queueName.Select(name => new QueueName(name)).ToArray());
+            var endpoint = new Endpoint()
+            {
+                QueueName = new QueueName(queueName),
+                QueueProvider = queueProvider,
+                TypeName = typeName
+            };
+
+            _endpoints.Add(endpoint);
+        }
+
+        public List<Endpoint> GetEndpoints(Type type)
+        {
+            var name = type.FullName;
+
+            var endpoints = new List<Endpoint>();
+
+            foreach (var endpoint in _endpoints)
+            {
+                if (name.StartsWith(endpoint.TypeName))
+                    endpoints.Add(endpoint);
+            }
+
+            return endpoints;
+//            throw new Exception(String.Format("No endpoint configured for type {0}.", type.FullName));
         }
 
         /// <summary>
         /// Should be cashed
         /// </summary>
-        public QueueName[] GetQueues(Type type)
+/*        public QueueName[] GetQueues(Type type)
         {
             var name = type.FullName;
 
@@ -30,6 +51,6 @@ namespace Paralect.ServiceBus
             }
 
             throw new Exception(String.Format("No endpoint configured for type {0}.", type.FullName));
-        }
+        }*/
     }
 }

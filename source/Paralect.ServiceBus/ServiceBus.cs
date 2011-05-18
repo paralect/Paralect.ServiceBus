@@ -17,19 +17,21 @@ namespace Paralect.ServiceBus
         private IQueue _errorQueue;
         private IQueueObserver _queueObserver;
         private Dispatcher _dispatcher;
+        private ServiceBusStatus _status;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
         public ServiceBus(Configuration configuration)
         {
+            _status = ServiceBusStatus.Stopped;
             _configuration = configuration;
             _provider = configuration.QueueProvider;
             _inputQueueName = configuration.InputQueue;
             _errorQueueName = configuration.ErrorQueue;
         }
 
-        public void Start()
+        public void Run()
         {
             PrepareQueues();
             PrepareDispatcher();
@@ -39,6 +41,7 @@ namespace Paralect.ServiceBus
             _queueObserver = _provider.CreateObserver(_inputQueueName);
             _queueObserver.MessageReceived += Observer_MessageReceived;
             _queueObserver.Start();
+            _status = ServiceBusStatus.Running;
         }
 
         private void PrepareDispatcher()
@@ -62,6 +65,16 @@ namespace Paralect.ServiceBus
                 {
                     _dispatcher.Dispatch(message);
                 }
+            }
+            catch (DispatchingException dispatchingException)
+            {
+                _log.ErrorException("", dispatchingException);
+                _errorQueue.Send(queueMessage);
+            }
+            catch (HandlerException handlerException)
+            {
+                _log.ErrorException("Message handling failed.", handlerException);
+                _errorQueue.Send(queueMessage);
             }
             catch (TransportMessageDeserializationException deserializationException)
             {
@@ -99,6 +112,7 @@ namespace Paralect.ServiceBus
         public void Wait()
         {
             _queueObserver.Wait();
+            _status = ServiceBusStatus.Stopped;
         }
 
         public void Dispose()
@@ -106,7 +120,9 @@ namespace Paralect.ServiceBus
             if (_queueObserver != null)
             {
                 _queueObserver.MessageReceived -= Observer_MessageReceived;
-                _queueObserver.Dispose();
+
+                if (_status != ServiceBusStatus.Stopped)
+                    _queueObserver.Dispose();
             }
         }
 
@@ -120,11 +136,12 @@ namespace Paralect.ServiceBus
 
             QueueMessage queueMessage = _provider.TranslateToQueueMessage(transportMessage);
 
-            var queueNames = _configuration.EndpointsMapping.GetQueues(messages[0].GetType());
+//            var queueNames = _configuration.EndpointsMapping.GetQueues(messages[0].GetType());
+            var endpoints = _configuration.EndpointsMapping.GetEndpoints(messages[0].GetType());
 
-            foreach (var queueName in queueNames)
+            foreach (var endpoint in endpoints)
             {
-                var queue = _provider.OpenQueue(queueName);
+                var queue = endpoint.QueueProvider.OpenQueue(endpoint.QueueName);
                 queue.Send(queueMessage);
             }
         }
