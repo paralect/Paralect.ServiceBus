@@ -14,16 +14,16 @@ namespace Paralect.ServiceBus.InMemory
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly QueueName _name;
-        private readonly IQueueManager _manager;
+        private readonly IQueueProvider _provider;
         private String _token = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InMemoryQueue(QueueName name, IQueueManager manager)
+        public InMemoryQueue(QueueName name, IQueueProvider provider)
         {
             _name = name;
-            _manager = manager;
+            _provider = provider;
         }
 
         public void Dispose()
@@ -31,19 +31,14 @@ namespace Paralect.ServiceBus.InMemory
             
         }
 
-        public string Token
-        {
-            get { return _token; }
-        }
-
         public QueueName Name
         {
             get { return _name;  }
         }
 
-        public IQueueManager Manager
+        public IQueueProvider Provider
         {
-            get { return _manager;  }
+            get { return _provider;  }
         }
 
         public void Purge()

@@ -4,11 +4,6 @@ namespace Paralect.ServiceBus
 {
     public class TransportMessage
     {
-        /// <summary>
-        /// Original message received from queue
-        /// </summary>
-        public Object TransportData { get; set; }
-
         public String SentFromComputerName { get; set; }
         public String SentFromQueueName { get; set; }
         public Object[] Messages { get; set; }

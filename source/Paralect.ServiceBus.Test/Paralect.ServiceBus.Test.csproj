@@ -53,7 +53,7 @@
     <Compile Include="Messages\Message2.cs" />
     <Compile Include="ObjectComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests\QueueManagerTest.cs" />
+    <Compile Include="Tests\QueueProviderTest.cs" />
     <Compile Include="Tests\QueueTest.cs" />
     <Compile Include="Tests\QueueObserverTest.cs" />
   </ItemGroup>

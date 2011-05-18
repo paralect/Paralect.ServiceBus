@@ -20,19 +20,19 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message1("MessageName", 2011)
                 });
 
-                using(var observer = new QueueObserver(queue.Manager, queue.Name))
+                using(var observer = queue.Provider.CreateObserver(queue.Name))
                 {
                     observer.MessageReceived += (message, ob) =>
                     {
                         messageCount++;
                         Helper.AssertTransportMessage(transportMessage,
-                            queue.Manager.Translator.TranslateToTransportMessage(message));
+                            queue.Provider.TranslateToTransportMessage(message));
                     };
 
                     observer.Start();
-                    queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
-                    queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
-                    queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                    queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
+                    queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
+                    queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
 
                     observer.Wait();
                 }
@@ -51,10 +51,10 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message1("MessageName", 2011)
                 });
 
-                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
 
-                var queue2 = queue.Manager.Open(queue.Name);
-                queue2.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                var queue2 = queue.Provider.OpenQueue(queue.Name);
+                queue2.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
             });
         }
     }

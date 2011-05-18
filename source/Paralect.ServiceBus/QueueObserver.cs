@@ -8,7 +8,7 @@ namespace Paralect.ServiceBus
 {
     public class QueueObserver : IQueueObserver
     {
-        private readonly IQueueManager _queueManager;
+        private readonly IQueueProvider _provider;
         private readonly QueueName _queueName;
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
         private Thread _observerThread;
@@ -17,17 +17,17 @@ namespace Paralect.ServiceBus
 
         private String _shutdownMessageId = Guid.NewGuid().ToString();
 
-        public IQueueManager QueueManager
+        public IQueueProvider Provider
         {
-            get { return _queueManager; }
+            get { return _provider; }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public QueueObserver(IQueueManager queueManager, QueueName queueName)
+        public QueueObserver(IQueueProvider provider, QueueName queueName)
         {
-            _queueManager = queueManager;
+            _provider = provider;
             _queueName = queueName;
         }
 
@@ -58,7 +58,7 @@ namespace Paralect.ServiceBus
         {
             try
             {
-                var queue = _queueManager.Open(_queueName);
+                var queue = _provider.OpenQueue(_queueName);
 
                 while (_continue)
                 {
@@ -111,8 +111,8 @@ namespace Paralect.ServiceBus
 
         private void SendStopMessages()
         {
-            _queueManager
-                .Open(_queueName)
+            _provider
+                .OpenQueue(_queueName)
                 .Send(new QueueMessage(null, _shutdownMessageId, "Shutdown", QueueMessageType.Shutdown));
         }
     }

@@ -26,10 +26,10 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message1("MessageName", 2011)
                 });
 
-                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             });
         }      
   
@@ -47,10 +47,10 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message2("MessageName5", 2015),
                 });
 
-                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             });
         }  
 
@@ -68,14 +68,14 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message2("MessageName5", 2015),
                 });
 
-                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
-                queue.Send(queue.Manager.Translator.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Manager.Translator.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             });
         }
 

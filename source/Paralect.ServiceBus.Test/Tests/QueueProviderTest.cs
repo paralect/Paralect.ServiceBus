@@ -5,7 +5,7 @@ using Paralect.ServiceBus.Msmq;
 namespace Paralect.ServiceBus.Test.Tests
 {
     [TestFixture]
-    public class QueueManagerTest
+    public class QueueProviderTest
     {
         [Test]
         public void JustCreation()
@@ -21,7 +21,7 @@ namespace Paralect.ServiceBus.Test.Tests
         {
             Helper.CreateQueue(queue =>
             {
-                var exists = queue.Manager.Exists(queue.Name);
+                var exists = queue.Provider.ExistsQueue(queue.Name);
                 Assert.AreEqual(exists, true);
             });
         }
@@ -30,8 +30,8 @@ namespace Paralect.ServiceBus.Test.Tests
         public void NotExistCheck()
         {
             var name = new QueueName(Guid.NewGuid().ToString());
-            var manager = new MsmqQueueManager();
-            var exists = manager.Exists(name);
+            var manager = new MsmqQueueProvider();
+            var exists = manager.ExistsQueue(name);
             Assert.AreEqual(exists, false);
         }
 

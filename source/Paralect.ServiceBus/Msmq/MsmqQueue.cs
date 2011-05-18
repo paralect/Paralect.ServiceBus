@@ -15,33 +15,26 @@ namespace Paralect.ServiceBus.Msmq
 
         private readonly QueueName _name;
         private readonly MessageQueue _messageQueue;
-        private readonly MsmqQueueManager _manager;
-
-        private String _token = Guid.NewGuid().ToString();
-
-        public string Token
-        {
-            get { return _token; }
-        }
+        private readonly MsmqQueueProvider _provider;
 
         public QueueName Name
         {
             get { return _name; }
         }
 
-        public IQueueManager Manager
+        public IQueueProvider Provider
         {
-            get { return _manager;  }
+            get { return _provider;  }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public MsmqQueue(QueueName name, MessageQueue messageQueue, MsmqQueueManager manager)
+        public MsmqQueue(QueueName name, MessageQueue messageQueue, MsmqQueueProvider provider)
         {
             _name = name;
             _messageQueue = messageQueue;
-            _manager = manager;
+            _provider = provider;
         }
 
         /// <summary>

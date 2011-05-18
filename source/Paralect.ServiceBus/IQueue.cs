@@ -12,12 +12,7 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Queue manager which create this queue
         /// </summary>
-        IQueueManager Manager { get; }
-
-        /// <summary>
-        /// Unique token which identifies this queue instance
-        /// </summary>
-        String Token { get; }
+        IQueueProvider Provider { get; }
 
         /// <summary>
         /// Delete all messages from this queue

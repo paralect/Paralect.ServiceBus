@@ -28,26 +28,26 @@ namespace Paralect.ServiceBus.Test
         {
             var name = new QueueName(Guid.NewGuid().ToString());
             
-            var managers = new IQueueManager[]
+            var managers = new IQueueProvider[]
             {
-                new MsmqQueueManager(),
-                new InMemoryQueueManager()
+                new MsmqQueueProvider(),
+                new InMemoryQueueProvider()
             };
 
             foreach (var manager in managers)
             {
                 try
                 {
-                    manager.Create(name);
+                    manager.CreateQueue(name);
 
-                    using (var queue = manager.Open(name))
+                    using (var queue = manager.OpenQueue(name))
                     {
                         action(queue);
                     }
                 }
                 finally
                 {
-                    manager.Delete(name);
+                    manager.DeleteQueue(name);
                 }
             }
         }
@@ -56,22 +56,22 @@ namespace Paralect.ServiceBus.Test
         {
             var name = new QueueName(Guid.NewGuid().ToString());
             
-            var managers = new IQueueManager[]
+            var managers = new IQueueProvider[]
             {
-                new MsmqQueueManager(),
-                new InMemoryQueueManager()
+                new MsmqQueueProvider(),
+                new InMemoryQueueProvider()
             };
 
             foreach (var manager in managers)
             {
                 try
                 {
-                    var queue = manager.Create(name);
+                    var queue = manager.CreateQueue(name);
                     action(queue);
                 }
                 finally
                 {
-                    manager.Delete(name);
+                    manager.DeleteQueue(name);
                 }
             }
         }

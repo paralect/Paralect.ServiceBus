@@ -1,8 +1,12 @@
+using System;
+
 namespace Paralect.ServiceBus
 {
     public interface IBus
     {
-        
+        void Send(params Object[] message);
+        void SendLocal(params Object[] message);
+        void Publish(Object message);        
     }
 }
 
