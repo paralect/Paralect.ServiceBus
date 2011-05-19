@@ -66,7 +66,8 @@ namespace Paralect.ServiceBus.Test
             {
                 try
                 {
-                    var queue = manager.CreateQueue(name);
+                    manager.CreateQueue(name);
+                    var queue = manager.OpenQueue(name);
                     action(queue);
                 }
                 finally

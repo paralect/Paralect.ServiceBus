@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.Unity;
 using NUnit.Framework;
@@ -10,67 +11,88 @@ namespace Paralect.ServiceBus.Test.Tests
     public class ServiceBusTest
     {
         [Test]
-        public void ObserveTest()
+        public void MsmqServiceBusTest()
         {
-            var inputQueue = new QueueName(Guid.NewGuid().ToString());
-            var errorQueue = new QueueName(Guid.NewGuid().ToString());
+            TestTwoBus(
+                config1 => config1.MsmqTransport(),
+                config2 => config2.MsmqTransport());
+        }
 
-            var unity = new UnityContainer();
-            var tracker = new Tracker();
-            unity.RegisterInstance(tracker);
+        [Test]
+        public void MemoryServiceBusTest()
+        {
+            TestTwoBus(
+                config1 => config1.MemoryTransport(),
+                config2 => config2.MemoryTransport());
+        }
 
-            var config1 = new Configuration(unity)
-                .MsmqTransport();
+        [Test]
+        public void MemoryAndMsmqServiceBusTest()
+        {
+            TestTwoBus(
+                config1 => config1.MemoryTransport(),
+                config2 => config2.MsmqTransport());
+        }
 
-            var config2 = new Configuration(unity)
-                .MsmqTransport();
+        [Test]
+        public void MsmqAndMemoryServiceBusTest()
+        {
+            TestTwoBus(
+                config1 => config1.MsmqTransport(),
+                config2 => config2.MemoryTransport());
+        }
 
-            config1.SetInputQueue("PSB.App1.Input")
-                .SetErrorQueue("PSB.App1.Error")
-                .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App2.Input", config2.QueueProvider);
-
-
-
-            config2.SetInputQueue("PSB.App2.Input")
-                .SetErrorQueue("PSB.App2.Error")
-                .AddEndpoint("Paralect.ServiceBus.Test.Messages", "PSB.App1.Input", config1.QueueProvider)
-                .AddHandlers(Assembly.GetExecutingAssembly());
-
-            using (var bus1 = new ServiceBus(config1))
-            using (var bus2 = new ServiceBus(config2))
-            {
-                bus1.Run();
-                bus2.Run();
-
-                var msg = new Message1("Hello", 2010);
-
-                bus1.Send(msg);
-
-                bus1.Wait();
-                bus2.Wait();
-            }
-
-            Assert.AreEqual(1, tracker.Handlers.Count);
-            Assert.AreEqual(typeof(Message1), tracker.Handlers[0]);
-
-/*
-            IQueueProvider provider = new Msmq.MsmqQueueProvider();
+        private void TestTwoBus(Action<Configuration> configModification1, Action<Configuration> configModification2)
+        {
+            var inputQueueName1 = new QueueName(Guid.NewGuid().ToString());
+            var inputQueueName2 = new QueueName(Guid.NewGuid().ToString());
 
             try
             {
-                using (var bus = new ServiceBus(provider, inputQueue, errorQueue))
+                var unity = new UnityContainer();
+                var tracker = new Tracker();
+                unity.RegisterInstance(tracker);
+
+                var config1 = new Configuration(unity)
+                    .SetInputQueue(inputQueueName1.GetFriendlyName())
+                    .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName());
+
+                configModification1(config1);
+
+                var config2 = new Configuration(unity)
+                    .SetInputQueue(inputQueueName2.GetFriendlyName())
+                    .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
+                    .AddHandlers(Assembly.GetExecutingAssembly());
+
+                configModification2(config2);
+
+                using (var bus1 = new ServiceBus(config1))
+                using (var bus2 = new ServiceBus(config2))
                 {
-                    bus.Dispatcher.
+                    bus1.Run();
+                    bus2.Run();
 
+                    var msg = new Message1("Hello", 2010);
 
-                    bus.Wait();
+                    bus1.Send(msg);
+
+                    bus1.Wait();
+                    bus2.Wait();
                 }
+
+                Assert.AreEqual(1, tracker.Handlers.Count);
+                Assert.AreEqual(typeof(Message1), tracker.Handlers[0]); 
             }
             finally
             {
-                provider.DeleteQueue(inputQueue);
-                provider.DeleteQueue(errorQueue);
-            }*/
-        }        
+                var queueProvider1 = QueueProviderRegistry.GetQueueProvider(inputQueueName1);
+                queueProvider1.DeleteQueue(inputQueueName1);
+
+                var queueProvider2 = QueueProviderRegistry.GetQueueProvider(inputQueueName2);
+                queueProvider2.DeleteQueue(inputQueueName2);
+            }
+        }
+
+
     }
 }

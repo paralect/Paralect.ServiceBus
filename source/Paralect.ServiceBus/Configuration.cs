@@ -87,12 +87,10 @@ namespace Paralect.ServiceBus
             _busContainer = busContainer;
         }
 
-        public Configuration AddEndpoint(String typeWildcard, String queueName, IQueueProvider queueProvider = null)
+        public Configuration AddEndpoint(String typeWildcard, String queueName)
         {
-            if (queueProvider == null)
-                queueProvider = _queueProvider;
-
-            _endpointsMapping.Map(typeWildcard, queueName, queueProvider);
+            _endpointsMapping.Map(typeWildcard, queueName, _queueProvider);
+            QueueProviderRegistry.Register(new QueueName(queueName), _queueProvider);
             return this;
         }
 
@@ -105,6 +103,14 @@ namespace Paralect.ServiceBus
         public Configuration SetInputQueue(String queueName)
         {
             _inputQueue = new QueueName(queueName);
+
+            // If error queue is not defined, set error queue name based on input queue name:
+            if (_errorQueue == null)
+            {
+                var errorQueueName = String.Format("{0}.Errors@{1}", _inputQueue.Name, _inputQueue.ComputerName);
+                _errorQueue = new QueueName(errorQueueName);
+            }
+
             return this;
         }
 

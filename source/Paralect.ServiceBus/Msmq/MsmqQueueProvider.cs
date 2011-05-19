@@ -19,11 +19,21 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Create queue
         /// </summary>
-        public IQueue CreateQueue(QueueName queueName)
+        public void CreateQueue(QueueName queueName)
         {
             var queue = MessageQueue.Create(queueName.GetQueueLocalName(), true); // transactional
             SetupQueue(queue);
-            return new MsmqQueue(queueName, queue, this);
+            SetPermissions(queue);
+        }
+
+        /// <summary>
+        /// Create queue
+        /// </summary>
+        public void PrepareQueue(QueueName queueName)
+        {
+            var queue = new MessageQueue(queueName.GetQueueFormatName());
+            SetupQueue(queue);
+            SetPermissions(queue);
         }
 
         /// <summary>
@@ -56,7 +66,10 @@ namespace Paralect.ServiceBus.Msmq
             queue.MessageReadPropertyFilter.AppSpecific = true;
             queue.MessageReadPropertyFilter.Extension = true;
             queue.Formatter = new MsmqMessageFormatter();
+        }
 
+        private void SetPermissions(MessageQueue queue)
+        {
             var userName = WindowsIdentity.GetCurrent().Name;
             MsmqPermissionManager.SetPermissionsForQueue(queue, userName);
         }

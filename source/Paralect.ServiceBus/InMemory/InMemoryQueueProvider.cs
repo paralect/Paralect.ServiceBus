@@ -24,11 +24,15 @@ namespace Paralect.ServiceBus.InMemory
             _queues.Remove(queueName.GetFriendlyName());
         }
 
-        public IQueue CreateQueue(QueueName queueName)
+        public void CreateQueue(QueueName queueName)
         {
             var queue = new InMemoryQueue(queueName, this);
             _queues[queueName.GetFriendlyName()] = queue;
-            return queue;
+        }
+
+        public void PrepareQueue(QueueName queueName)
+        {
+            // nothing to do here...
         }
 
         public IQueue OpenQueue(QueueName queueName)

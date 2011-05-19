@@ -81,6 +81,7 @@
     <Compile Include="Msmq\MsmqPermissionManager.cs" />
     <Compile Include="Msmq\MsmqQueueProvider.cs" />
     <Compile Include="Msmq\MsmqQueue.cs" />
+    <Compile Include="QueueProviderRegistry.cs" />
     <Compile Include="QueueSynchronousObserver.cs" />
     <Compile Include="ServiceBusStatus.cs" />
     <Compile Include="Utils\MutexFactory.cs" />

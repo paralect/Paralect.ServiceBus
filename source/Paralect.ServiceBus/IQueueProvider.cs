@@ -17,7 +17,12 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Create queue
         /// </summary>
-        IQueue CreateQueue(QueueName queueName);
+        void CreateQueue(QueueName queueName);
+
+        /// <summary>
+        /// Prepare local queue
+        /// </summary>
+        void PrepareQueue(QueueName queueName);
 
         /// <summary>
         /// Open queue

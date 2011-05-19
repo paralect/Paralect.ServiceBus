@@ -29,6 +29,9 @@ namespace Paralect.ServiceBus
             _provider = configuration.QueueProvider;
             _inputQueueName = configuration.InputQueue;
             _errorQueueName = configuration.ErrorQueue;
+
+            QueueProviderRegistry.Register(_inputQueueName, _provider);
+            QueueProviderRegistry.Register(_errorQueueName, _provider);
         }
 
         public void Run()
@@ -95,18 +98,20 @@ namespace Paralect.ServiceBus
                 });
             }
 
+            _provider.PrepareQueue(_inputQueueName);
+
             String errorMutexName = String.Format("Paralect.ServiceBus.{0}.ErrorQueue", _inputQueueName.GetFriendlyName());
             if (!_provider.ExistsQueue(_errorQueueName))
             {
                 MutexFactory.LockByMutex(errorMutexName, () =>
                 {
-                    if (!_provider.ExistsQueue(_inputQueueName))
-                        _provider.CreateQueue(_inputQueueName);
-
                     if (!_provider.ExistsQueue(_errorQueueName))
-                        _provider.CreateQueue(_inputQueueName);
+                        _provider.CreateQueue(_errorQueueName);
+
                 });
             }
+
+            _provider.PrepareQueue(_errorQueueName);
         }
 
         public void Wait()
@@ -134,14 +139,16 @@ namespace Paralect.ServiceBus
             TransportMessage transportMessage = new TransportMessage(messages);
             transportMessage.SentFromQueueName = _inputQueueName.GetFriendlyName();
 
-            QueueMessage queueMessage = _provider.TranslateToQueueMessage(transportMessage);
-
 //            var queueNames = _configuration.EndpointsMapping.GetQueues(messages[0].GetType());
             var endpoints = _configuration.EndpointsMapping.GetEndpoints(messages[0].GetType());
 
             foreach (var endpoint in endpoints)
             {
-                var queue = endpoint.QueueProvider.OpenQueue(endpoint.QueueName);
+                var provider = QueueProviderRegistry.GetQueueProvider(endpoint.QueueName);
+                QueueMessage queueMessage = provider.TranslateToQueueMessage(transportMessage);
+
+                var queue = provider.OpenQueue(endpoint.QueueName);
+
                 queue.Send(queueMessage);
             }
         }

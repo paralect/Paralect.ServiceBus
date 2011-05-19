@@ -14,8 +14,8 @@ namespace Paralect.ServiceBus
             var endpoint = new Endpoint()
             {
                 QueueName = new QueueName(queueName),
-                QueueProvider = queueProvider,
-                TypeName = typeName
+                TypeName = typeName,
+                QueueProvider = queueProvider
             };
 
             _endpoints.Add(endpoint);
