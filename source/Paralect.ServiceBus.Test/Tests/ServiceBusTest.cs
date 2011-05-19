@@ -27,12 +27,29 @@ namespace Paralect.ServiceBus.Test.Tests
         }
 
         [Test]
-        public void MemoryToSynchronousTest()
+        public void MemorySyncServiceBusTest()
         {
             TestTwoBus(
                 config1 => config1.MemorySynchronousTransport(),
+                config2 => config2.MemorySynchronousTransport());
+        }
+
+        [Test]
+        public void MsmqAndMemoryServiceBusTest()
+        {
+            TestTwoBus(
+                config1 => config1.MsmqTransport(),
                 config2 => config2.MemoryTransport());
         }
+
+        [Test]
+        public void MsmqAndMemorySyncServiceBusTest()
+        {
+            TestTwoBus(
+                config1 => config1.MsmqTransport(),
+                config2 => config2.MemorySynchronousTransport());
+        }
+
 
         [Test]
         public void SynchronousToMemoryTest()
@@ -51,12 +68,21 @@ namespace Paralect.ServiceBus.Test.Tests
         }
 
         [Test]
-        public void MsmqAndMemoryServiceBusTest()
+        public void MemoryToSynchronousTest()
         {
             TestTwoBus(
-                config1 => config1.MsmqTransport(),
+                config1 => config1.MemorySynchronousTransport(),
                 config2 => config2.MemoryTransport());
         }
+
+        [Test]
+        public void MemorySynchronousToMsmqTest()
+        {
+            TestTwoBus(
+                config1 => config1.MemorySynchronousTransport(),
+                config2 => config2.MsmqTransport());
+        }
+
 
         private void TestTwoBus(Action<Configuration> configModification1, Action<Configuration> configModification2)
         {
@@ -89,8 +115,10 @@ namespace Paralect.ServiceBus.Test.Tests
                     bus2.Run();
 
                     var msg = new Message1("Hello", 2010);
+                    var msg2 = new Message1("Hello2", 2010);
 
                     bus1.Send(msg);
+                    bus2.Send(msg2);
 
                     bus1.Wait();
                     bus2.Wait();
