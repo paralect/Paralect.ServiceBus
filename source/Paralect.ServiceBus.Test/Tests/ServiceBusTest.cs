@@ -27,6 +27,22 @@ namespace Paralect.ServiceBus.Test.Tests
         }
 
         [Test]
+        public void MemoryToSynchronousTest()
+        {
+            TestTwoBus(
+                config1 => config1.MemorySynchronousTransport(),
+                config2 => config2.MemoryTransport());
+        }
+
+        [Test]
+        public void SynchronousToMemoryTest()
+        {
+            TestTwoBus(
+                config1 => config1.MemoryTransport(),
+                config2 => config2.MemorySynchronousTransport());
+        }
+
+        [Test]
         public void MemoryAndMsmqServiceBusTest()
         {
             TestTwoBus(

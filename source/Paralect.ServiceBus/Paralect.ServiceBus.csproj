@@ -74,6 +74,8 @@
     <Compile Include="InMemory\BlockingQueue.cs" />
     <Compile Include="InMemory\InMemoryQueue.cs" />
     <Compile Include="InMemory\InMemoryQueueProvider.cs" />
+    <Compile Include="InMemory\InMemorySynchronousQueue.cs" />
+    <Compile Include="InMemory\InMemorySynchronousQueueProvider.cs" />
     <Compile Include="IQueueProvider.cs" />
     <Compile Include="IQueue.cs" />
     <Compile Include="IQueueObserver.cs" />

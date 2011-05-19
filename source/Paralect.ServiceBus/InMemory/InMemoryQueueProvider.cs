@@ -5,7 +5,7 @@ namespace Paralect.ServiceBus.InMemory
 {
     public class InMemoryQueueProvider : IQueueProvider
     {
-        private Dictionary<String, InMemoryQueue> _queues = new Dictionary<string, InMemoryQueue>();
+        protected Dictionary<String, IQueue> _queues = new Dictionary<string, IQueue>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
@@ -24,7 +24,7 @@ namespace Paralect.ServiceBus.InMemory
             _queues.Remove(queueName.GetFriendlyName());
         }
 
-        public void CreateQueue(QueueName queueName)
+        public virtual void CreateQueue(QueueName queueName)
         {
             var queue = new InMemoryQueue(queueName, this);
             _queues[queueName.GetFriendlyName()] = queue;
@@ -43,7 +43,7 @@ namespace Paralect.ServiceBus.InMemory
             return _queues[queueName.GetFriendlyName()];
         }
 
-        public IQueueObserver CreateObserver(QueueName queueName)
+        public virtual IQueueObserver CreateObserver(QueueName queueName)
         {
             return new QueueObserver(this, queueName);
         }

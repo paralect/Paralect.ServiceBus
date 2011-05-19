@@ -166,5 +166,11 @@ namespace Paralect.ServiceBus
             _queueProvider = new InMemory.InMemoryQueueProvider();
             return this;
         }
+
+        public Configuration MemorySynchronousTransport()
+        {
+            _queueProvider = new InMemory.InMemorySynchronousQueueProvider();
+            return this;
+        }
     }
 }

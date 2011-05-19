@@ -1,5 +1,7 @@
 using System;
 using NUnit.Framework;
+using Paralect.ServiceBus.InMemory;
+using Paralect.ServiceBus.Msmq;
 using Paralect.ServiceBus.Test.Messages;
 
 namespace Paralect.ServiceBus.Test.Tests
@@ -30,6 +32,11 @@ namespace Paralect.ServiceBus.Test.Tests
 
                 Helper.AssertTransportMessage(transportMessage,
                     queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+            },
+            new IQueueProvider[]
+            {
+                new MsmqQueueProvider(),
+                new InMemoryQueueProvider()
             });
         }      
   
@@ -51,6 +58,11 @@ namespace Paralect.ServiceBus.Test.Tests
 
                 Helper.AssertTransportMessage(transportMessage,
                     queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+            },
+            new IQueueProvider[]
+            {
+                new MsmqQueueProvider(),
+                new InMemoryQueueProvider()
             });
         }  
 
@@ -76,9 +88,12 @@ namespace Paralect.ServiceBus.Test.Tests
 
                 Helper.AssertTransportMessage(transportMessage,
                     queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+            },
+            new IQueueProvider[]
+            {
+                new MsmqQueueProvider(),
+                new InMemoryQueueProvider()
             });
         }
-
-
     }
 }
