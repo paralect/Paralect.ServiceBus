@@ -23,7 +23,7 @@ namespace Paralect.ServiceBus.Msmq
         {
             var queue = MessageQueue.Create(queueName.GetQueueLocalName(), true); // transactional
             SetupQueue(queue);
-            SetPermissions(queue);
+//            SetPermissions(queue);
         }
 
         /// <summary>
