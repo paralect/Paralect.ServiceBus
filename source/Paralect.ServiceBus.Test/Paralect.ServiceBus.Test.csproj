@@ -63,6 +63,7 @@
     <Compile Include="Messages\SimpleMessage3.cs" />
     <Compile Include="ObjectComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\InterceptorsTest.cs" />
     <Compile Include="Tests\QueueProviderTest.cs" />
     <Compile Include="Tests\QueueTest.cs" />
     <Compile Include="Tests\QueueObserverTest.cs" />
