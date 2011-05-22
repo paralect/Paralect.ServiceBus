@@ -14,6 +14,25 @@ namespace Paralect.ServiceBus
         public TransportMessage(params Object[] messages)
         {
             Messages = messages;
+
+    /*
+	        using (IServiceBus bus = ServiceBusFactory.New(x => x
+                       .ReceiveFrom("loopback://localhost/my_queue")
+			           .SetReceiveTimeout(10.Milliseconds())
+			           .Environments(e => e
+                            .Add<Production>()
+                            .Select("production")
+				       );
+		        ))
+	        {
+		        ((ServiceBus) bus).MaximumConsumerThreads.ShouldEqual(7);
+	        }*/
+
         }
     }
 }
+
+
+
+
+

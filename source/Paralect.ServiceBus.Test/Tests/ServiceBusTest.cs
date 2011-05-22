@@ -84,7 +84,7 @@ namespace Paralect.ServiceBus.Test.Tests
         }
 
 
-        private void TestTwoBus(Action<Configuration> configModification1, Action<Configuration> configModification2)
+        private void TestTwoBus(Action<ServiceBusConfiguration> configModification1, Action<ServiceBusConfiguration> configModification2)
         {
             var inputQueueName1 = new QueueName(Guid.NewGuid().ToString());
             var inputQueueName2 = new QueueName(Guid.NewGuid().ToString());
@@ -95,13 +95,15 @@ namespace Paralect.ServiceBus.Test.Tests
                 var tracker = new Tracker();
                 unity.RegisterInstance(tracker);
 
-                var config1 = new Configuration(unity)
+                var config1 = new ServiceBusConfiguration()
+                    .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName());
 
                 configModification1(config1);
 
-                var config2 = new Configuration(unity)
+                var config2 = new ServiceBusConfiguration()
+                    .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
                     .AddHandlers(Assembly.GetExecutingAssembly());

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Paralect.App;
 using Paralect.ServiceBus;
 using Shared.ServerMessages;
@@ -9,7 +9,7 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            var config = new Configuration(AppDomainUnityContext.Current)
+            var config = new ServiceBusConfiguration(AppDomainUnityContext.Current)
                 .MsmqTransport()
                 .SetInputQueue("PSB.App1.Input")
                 .SetErrorQueue("PSB.App1.Error")

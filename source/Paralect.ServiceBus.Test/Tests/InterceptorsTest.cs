@@ -26,12 +26,14 @@ namespace Paralect.ServiceBus.Test.Tests
                 var tracker = new Tracker();
                 unity.RegisterInstance(tracker);
 
-                var config1 = new Configuration(unity)
+                var config1 = new ServiceBusConfiguration()
+                    .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName());
 
-                var config2 = new Configuration(unity)
+                var config2 = new ServiceBusConfiguration()
+                    .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())

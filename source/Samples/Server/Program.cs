@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +12,7 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            var config = new Configuration(AppDomainUnityContext.Current)
+            var config = new ServiceBusConfiguration(AppDomainUnityContext.Current)
                 .MsmqTransport()
                 .SetInputQueue("PSB.App2.Input")
                 .SetErrorQueue("PSB.App2.Error")

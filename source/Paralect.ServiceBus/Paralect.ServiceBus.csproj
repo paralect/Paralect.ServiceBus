@@ -58,7 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration.cs" />
+    <Compile Include="ServiceBusConfiguration.cs" />
     <Compile Include="Dispatching\Dispatcher.cs" />
     <Compile Include="Endpoint.cs" />
     <Compile Include="EndpointsMapping.cs" />
@@ -84,7 +84,8 @@
     <Compile Include="Msmq\MsmqQueueProvider.cs" />
     <Compile Include="Msmq\MsmqQueue.cs" />
     <Compile Include="QueueProviderRegistry.cs" />
-    <Compile Include="QueueSynchronousObserver.cs" />
+    <Compile Include="ServiceBusConfigurationExtensions.cs" />
+    <Compile Include="ServiceBusFactory.cs" />
     <Compile Include="ServiceBusStatus.cs" />
     <Compile Include="Utils\MutexFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

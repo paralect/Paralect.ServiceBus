@@ -7,7 +7,7 @@ namespace Paralect.ServiceBus
 {
     public class ServiceBus : IBus, IDisposable
     {
-        private readonly Configuration _configuration;
+        private readonly ServiceBusConfiguration _configuration;
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly IQueueProvider _provider;
@@ -22,7 +22,7 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public ServiceBus(Configuration configuration)
+        public ServiceBus(ServiceBusConfiguration configuration)
         {
             _status = ServiceBusStatus.Stopped;
             _configuration = configuration;
