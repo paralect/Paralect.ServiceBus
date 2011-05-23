@@ -20,19 +20,22 @@ namespace Paralect.ServiceBus.Test.Tests
             var inputQueueName1 = new QueueName(Guid.NewGuid().ToString());
             var inputQueueName2 = new QueueName(Guid.NewGuid().ToString());
 
+            ServiceBusConfiguration config1 = null;
+            ServiceBusConfiguration config2 = null;
+
             try
             {
                 var unity = new UnityContainer();
                 var tracker = new Tracker();
                 unity.RegisterInstance(tracker);
 
-                var config1 = new ServiceBusConfiguration()
+                config1 = new ServiceBusConfiguration()
                     .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName());
 
-                var config2 = new ServiceBusConfiguration()
+                config2 = new ServiceBusConfiguration()
                     .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
@@ -40,7 +43,6 @@ namespace Paralect.ServiceBus.Test.Tests
                     .AddHandlers(Assembly.GetExecutingAssembly())
                     .AddInterceptor(typeof(FirstInterceptor))
                     .AddInterceptor(typeof(SecondInterceptor));
-
 
                 using (var bus1 = new ServiceBus(config1))
                 using (var bus2 = new ServiceBus(config2))
@@ -65,10 +67,12 @@ namespace Paralect.ServiceBus.Test.Tests
             finally
             {
                 var queueProvider1 = QueueProviderRegistry.GetQueueProvider(inputQueueName1);
-                queueProvider1.DeleteQueue(inputQueueName1);
+                queueProvider1.DeleteQueue(config1.InputQueue);
+                queueProvider1.DeleteQueue(config1.ErrorQueue);
 
                 var queueProvider2 = QueueProviderRegistry.GetQueueProvider(inputQueueName2);
-                queueProvider2.DeleteQueue(inputQueueName2);
+                queueProvider2.DeleteQueue(config2.InputQueue);
+                queueProvider2.DeleteQueue(config2.ErrorQueue);
             }
         }
     }

@@ -11,6 +11,9 @@ namespace Paralect.ServiceBus
 
         public void Map(String typeName, String queueName, IQueueProvider queueProvider)
         {
+            if (queueProvider == null)
+                throw new ArgumentNullException("queueProvider");
+
             var endpoint = new Endpoint()
             {
                 QueueName = new QueueName(queueName),

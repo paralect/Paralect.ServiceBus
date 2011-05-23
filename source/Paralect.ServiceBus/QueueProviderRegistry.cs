@@ -12,6 +12,9 @@ namespace Paralect.ServiceBus
 
         public static void Register(QueueName queueName, IQueueProvider queueProvider)
         {
+            if (queueProvider == null)
+                return;
+
             _map[queueName.GetFriendlyName()] = queueProvider;
         }
 

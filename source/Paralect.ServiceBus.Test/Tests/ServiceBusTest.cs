@@ -89,29 +89,34 @@ namespace Paralect.ServiceBus.Test.Tests
             var inputQueueName1 = new QueueName(Guid.NewGuid().ToString());
             var inputQueueName2 = new QueueName(Guid.NewGuid().ToString());
 
+            ServiceBusConfiguration config1 = null;
+            ServiceBusConfiguration config2 = null;
+
             try
             {
-                var unity = new UnityContainer();
                 var tracker = new Tracker();
-                unity.RegisterInstance(tracker);
+                var unity = new UnityContainer()
+                    .RegisterInstance(tracker);
 
-                var config1 = new ServiceBusConfiguration()
+                var bus1 = ServiceBusFactory.Create(c => c
+                    .Modify(configModification1)
                     .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
-                    .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName());
+                    .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName())
+                    .Out(out config1)
+                );
 
-                configModification1(config1);
-
-                var config2 = new ServiceBusConfiguration()
+                var bus2 = ServiceBusFactory.Create(c => c
+                    .Modify(configModification2)
                     .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
-                    .AddHandlers(Assembly.GetExecutingAssembly());
+                    .AddHandlers(Assembly.GetExecutingAssembly())
+                    .Out(out config2)
+                );
 
-                configModification2(config2);
-
-                using (var bus1 = new ServiceBus(config1))
-                using (var bus2 = new ServiceBus(config2))
+                using (bus1)
+                using (bus2)
                 {
                     bus1.Run();
                     bus2.Run();
@@ -132,13 +137,14 @@ namespace Paralect.ServiceBus.Test.Tests
             finally
             {
                 var queueProvider1 = QueueProviderRegistry.GetQueueProvider(inputQueueName1);
-                queueProvider1.DeleteQueue(inputQueueName1);
+                queueProvider1.DeleteQueue(config1.InputQueue);
+                queueProvider1.DeleteQueue(config1.ErrorQueue);
 
                 var queueProvider2 = QueueProviderRegistry.GetQueueProvider(inputQueueName2);
-                queueProvider2.DeleteQueue(inputQueueName2);
+                queueProvider2.DeleteQueue(config2.InputQueue);
+                queueProvider2.DeleteQueue(config2.ErrorQueue);
+
             }
         }
-
-
     }
 }
