@@ -24,6 +24,12 @@ namespace Paralect.ServiceBus
         /// </summary>
         public ServiceBus(ServiceBusConfiguration configuration)
         {
+            if (configuration.BusContainer == null)
+                throw new ArgumentException("Unity Container is not registered. User SetUnityContainer() method.");
+
+            if (configuration.InputQueue == null)
+                throw new ArgumentException("Input queue not configured. Use SetInputQueue() method.");
+
             _status = ServiceBusStatus.Stopped;
             _configuration = configuration;
             _provider = configuration.QueueProvider;
@@ -36,6 +42,12 @@ namespace Paralect.ServiceBus
 
         public void Run()
         {
+            foreach (var endpoint in _configuration.EndpointsMapping.Endpoints)
+            {
+                if (QueueProviderRegistry.GetQueueProvider(endpoint.QueueName) == null)
+                    QueueProviderRegistry.Register(endpoint.QueueName, endpoint.QueueProvider ?? _provider);
+            }
+
             PrepareQueues();
             PrepareDispatcher();
 
@@ -71,7 +83,7 @@ namespace Paralect.ServiceBus
             }
             catch (DispatchingException dispatchingException)
             {
-                _log.ErrorException("", dispatchingException);
+                _log.ErrorException("Dispatching exception. See logs for more details.", dispatchingException);
                 _errorQueue.Send(queueMessage);
             }
             catch (HandlerException handlerException)
@@ -139,7 +151,6 @@ namespace Paralect.ServiceBus
             TransportMessage transportMessage = new TransportMessage(messages);
             transportMessage.SentFromQueueName = _inputQueueName.GetFriendlyName();
 
-//            var queueNames = _configuration.EndpointsMapping.GetQueues(messages[0].GetType());
             var endpoints = _configuration.EndpointsMapping.GetEndpoints(messages[0].GetType());
 
             foreach (var endpoint in endpoints)

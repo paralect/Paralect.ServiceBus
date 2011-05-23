@@ -9,9 +9,14 @@ namespace Paralect.ServiceBus
     {
         private List<Endpoint> _endpoints = new List<Endpoint>();
 
+        public List<Endpoint> Endpoints
+        {
+            get { return _endpoints; }
+        }
+
         public void Map(String typeName, String queueName, IQueueProvider queueProvider)
         {
-            var endpoint = new Endpoint()
+            var endpoint = new Endpoint
             {
                 QueueName = new QueueName(queueName),
                 TypeName = typeName,

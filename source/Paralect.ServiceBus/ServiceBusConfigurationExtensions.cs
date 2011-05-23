@@ -12,10 +12,9 @@ namespace Paralect.ServiceBus
             return configuration;
         }
 
-        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, String typeWildcard, String queueName)
+        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, String typeWildcard, String queueName, IQueueProvider queueProvider = null)
         {
-            configuration.EndpointsMapping.Map(typeWildcard, queueName, configuration.QueueProvider);
-//            QueueProviderRegistry.Register(new QueueName(queueName), configuration.QueueProvider);
+            configuration.EndpointsMapping.Map(typeWildcard, queueName, queueProvider);
             return configuration;
         }
 

@@ -29,23 +29,27 @@ namespace Paralect.ServiceBus.Test.Tests
                 var tracker = new Tracker();
                 unity.RegisterInstance(tracker);
 
-                config1 = new ServiceBusConfiguration()
+                var bus1 = ServiceBusFactory.Create(c => c
                     .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
-                    .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName());
+                    .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName())
+                    .Out(out config1)
+                );
 
-                config2 = new ServiceBusConfiguration()
+                var bus2 = ServiceBusFactory.Create(c => c
                     .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
                     .AddHandlers(Assembly.GetExecutingAssembly())
                     .AddInterceptor(typeof(FirstInterceptor))
-                    .AddInterceptor(typeof(SecondInterceptor));
+                    .AddInterceptor(typeof(SecondInterceptor))
+                    .Out(out config2)
+                );
 
-                using (var bus1 = new ServiceBus(config1))
-                using (var bus2 = new ServiceBus(config2))
+                using (bus1)
+                using (bus2)
                 {
                     bus1.Run();
                     bus2.Run();
@@ -64,6 +68,12 @@ namespace Paralect.ServiceBus.Test.Tests
                     Assert.AreEqual(typeof(SecondInterceptor), tracker.Interceptors[1]);
                 }
             }
+            catch (Exception ex)
+            {
+                var z = 45;
+                throw;
+            }
+
             finally
             {
                 var queueProvider1 = QueueProviderRegistry.GetQueueProvider(inputQueueName1);

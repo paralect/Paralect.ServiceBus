@@ -22,7 +22,7 @@ namespace Paralect.ServiceBus
         {
             IQueueProvider provider;
             if (!_map.TryGetValue(queueName.GetFriendlyName(), out provider))
-                throw new InvalidOperationException(String.Format("Queue {0} was not registered in QueueProviderRegistry", queueName.GetFriendlyName()));
+                return null;
 
             return provider;
         }
