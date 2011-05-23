@@ -99,21 +99,22 @@ namespace Paralect.ServiceBus.Test.Tests
                     .RegisterInstance(tracker);
 
                 var bus1 = ServiceBusFactory.Create(c => c
-                    .Modify(configModification1)
                     .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName())
+                    .Modify(configModification1)
                     .Out(out config1)
                 );
 
                 var bus2 = ServiceBusFactory.Create(c => c
-                    .Modify(configModification2)
                     .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
                     .AddHandlers(Assembly.GetExecutingAssembly())
                     .Out(out config2)
+                    .Modify(configModification2)
                 );
+                 
 
                 using (bus1)
                 using (bus2)
