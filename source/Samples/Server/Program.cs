@@ -12,7 +12,7 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            var bus = ServiceBusFactory.Create(c => c
+            var bus = ServiceBus.Run(c => c
                 .SetUnityContainer(AppDomainUnityContext.Current)
                 .MsmqTransport()
                 .SetInputQueue("PSB.App2.Input")
@@ -20,8 +20,6 @@ namespace Server
                 .AddEndpoint("Shared.ClientMessages", "PSB.App1.Input")
                 .AddHandlers(typeof(Program).Assembly)
             );
-
-            bus.Run();
 
             Console.WriteLine("Server started. Press enter to send message");
 

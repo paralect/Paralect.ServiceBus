@@ -5,7 +5,7 @@ using Paralect.ServiceBus.Utils;
 
 namespace Paralect.ServiceBus
 {
-    public class ServiceBus : IBus, IDisposable
+    public class ServiceBus : IBus
     {
         private readonly ServiceBusConfiguration _configuration;
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
@@ -174,6 +174,22 @@ namespace Paralect.ServiceBus
         public void Publish(object message)
         {
             Send(message);
+        }
+
+        public static IBus Run(Func<ServiceBusConfiguration, ServiceBusConfiguration> configurationAction)
+        {
+            var config = new ServiceBusConfiguration();
+            configurationAction(config);
+            var bus = new ServiceBus(config);
+            bus.Run();
+            return bus;
+        }
+
+        public static IBus Create(Func<ServiceBusConfiguration, ServiceBusConfiguration> configurationAction)
+        {
+            var config = new ServiceBusConfiguration();
+            configurationAction(config);
+            return new ServiceBus(config);
         }
     }
 }

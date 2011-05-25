@@ -98,7 +98,7 @@ namespace Paralect.ServiceBus.Test.Tests
                 var unity = new UnityContainer()
                     .RegisterInstance(tracker);
 
-                var bus1 = ServiceBusFactory.Create(c => c
+                var bus1 = ServiceBus.Create(c => c
                     .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName())
@@ -106,7 +106,7 @@ namespace Paralect.ServiceBus.Test.Tests
                     .Out(out config1)
                 );
 
-                var bus2 = ServiceBusFactory.Create(c => c
+                var bus2 = ServiceBus.Create(c => c
                     .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
@@ -114,7 +114,6 @@ namespace Paralect.ServiceBus.Test.Tests
                     .Out(out config2)
                     .Modify(configModification2)
                 );
-                 
 
                 using (bus1)
                 using (bus2)
@@ -128,8 +127,8 @@ namespace Paralect.ServiceBus.Test.Tests
                     bus1.Send(msg);
                     bus2.Send(msg2);
 
-                    bus1.Wait();
                     bus2.Wait();
+                    bus1.Wait();
                 }
 
                 Assert.AreEqual(1, tracker.Handlers.Count);
@@ -144,7 +143,6 @@ namespace Paralect.ServiceBus.Test.Tests
                 var queueProvider2 = QueueProviderRegistry.GetQueueProvider(inputQueueName2);
                 queueProvider2.DeleteQueue(config2.InputQueue);
                 queueProvider2.DeleteQueue(config2.ErrorQueue);
-
             }
         }
     }

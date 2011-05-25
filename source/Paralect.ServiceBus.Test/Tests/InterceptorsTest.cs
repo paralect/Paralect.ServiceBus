@@ -29,7 +29,7 @@ namespace Paralect.ServiceBus.Test.Tests
                 var tracker = new Tracker();
                 unity.RegisterInstance(tracker);
 
-                var bus1 = ServiceBusFactory.Create(c => c
+                var bus1 = ServiceBus.Create(c => c
                     .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
@@ -37,7 +37,7 @@ namespace Paralect.ServiceBus.Test.Tests
                     .Out(out config1)
                 );
 
-                var bus2 = ServiceBusFactory.Create(c => c
+                var bus2 = ServiceBus.Create(c => c
                     .SetUnityContainer(unity)
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
@@ -58,8 +58,8 @@ namespace Paralect.ServiceBus.Test.Tests
 
                     bus1.Send(msg);
 
-                    bus1.Wait();
                     bus2.Wait();
+                    bus1.Wait();
 
                     Assert.AreEqual(1, tracker.Handlers.Count);
                     Assert.AreEqual(2, tracker.Interceptors.Count);

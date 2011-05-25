@@ -85,7 +85,6 @@
     <Compile Include="Msmq\MsmqQueue.cs" />
     <Compile Include="QueueProviderRegistry.cs" />
     <Compile Include="ServiceBusConfigurationExtensions.cs" />
-    <Compile Include="ServiceBusFactory.cs" />
     <Compile Include="ServiceBusStatus.cs" />
     <Compile Include="Utils\MutexFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
