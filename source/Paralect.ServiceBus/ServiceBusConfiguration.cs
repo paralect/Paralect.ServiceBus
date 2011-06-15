@@ -14,15 +14,14 @@ namespace Paralect.ServiceBus
         /// Name of instance of ServiceBus. Used for logging.
         /// </summary>
         public string Name { get; set; }
+        public IUnityContainer BusContainer { get; set; }
         public IQueueProvider QueueProvider { get; set; }
-        public HandlerRegistry HandlerRegistry { get; set; }
         public EndpointsMapping EndpointsMapping { get; set; }
         public QueueName InputQueue { get; set; }
         public QueueName ErrorQueue { get; set; }
-        public Type MessageHandlerMarkerInterface { get; set; }
         public int NumberOfWorkerThreads { get; set; }
-        public int MaxRetries { get; set; }
-        public IUnityContainer BusContainer { get; set; }
+
+        public DispatcherConfiguration DispatcherConfiguration { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
@@ -30,11 +29,9 @@ namespace Paralect.ServiceBus
         public ServiceBusConfiguration()
         {
             Name = "Unnamed";
-            HandlerRegistry = new HandlerRegistry();
             EndpointsMapping = new EndpointsMapping();
-            MessageHandlerMarkerInterface = typeof(IMessageHandler<>);
             NumberOfWorkerThreads = 1;
-            MaxRetries = 1;
+            DispatcherConfiguration = new DispatcherConfiguration();
         }
     }
 }

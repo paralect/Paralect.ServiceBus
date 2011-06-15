@@ -8,6 +8,16 @@ namespace Paralect.ServiceBus.Msmq
 {
     public class MsmqQueueProvider : IQueueProvider
     {
+        private readonly string _threadName;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:System.Object"/> class.
+        /// </summary>
+        public MsmqQueueProvider(String threadName = null)
+        {
+            _threadName = threadName;
+        }
+
         /// <summary>
         /// Check existence of queue
         /// </summary>
@@ -56,7 +66,7 @@ namespace Paralect.ServiceBus.Msmq
 
         public IQueueObserver CreateObserver(QueueName queueName)
         {
-            return new QueueObserver(this, queueName);
+            return new SingleThreadQueueObserver(this, queueName, _threadName);
         }
 
         private void SetupQueue(MessageQueue queue)

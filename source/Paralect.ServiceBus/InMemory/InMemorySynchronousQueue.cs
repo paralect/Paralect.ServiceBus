@@ -26,6 +26,8 @@ namespace Paralect.ServiceBus.InMemory
             get { return _name; }
         }
 
+        public event Action<IQueueObserver> ObserverStarted;
+        public event Action<IQueueObserver> ObserverStopped;
         public event Action<QueueMessage, IQueueObserver> MessageReceived;
 
         IQueueProvider IQueueObserver.Provider

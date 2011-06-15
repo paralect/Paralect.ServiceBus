@@ -2,7 +2,7 @@ using System;
 
 namespace Paralect.ServiceBus.Dispatching
 {
-    public class InvocationContext
+    public class DispatcherInvocationContext
     {
         private readonly Dispatching.Dispatcher _dispatcher;
         private readonly object _handler;
@@ -16,14 +16,14 @@ namespace Paralect.ServiceBus.Dispatching
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InvocationContext()
+        public DispatcherInvocationContext()
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InvocationContext(Dispatching.Dispatcher dispatcher, Object handler, Object message)
+        public DispatcherInvocationContext(Dispatching.Dispatcher dispatcher, Object handler, Object message)
         {
             _dispatcher = dispatcher;
             _handler = handler;
@@ -36,15 +36,15 @@ namespace Paralect.ServiceBus.Dispatching
         }
     }
 
-    public class InterceptorInvocationContext : InvocationContext
+    public class DispatcherInterceptorContext : DispatcherInvocationContext
     {
         private readonly IMessageHandlerInterceptor _interceptor;
-        private readonly InvocationContext _context;
+        private readonly DispatcherInvocationContext _context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InterceptorInvocationContext(IMessageHandlerInterceptor interceptor, InvocationContext context)
+        public DispatcherInterceptorContext(IMessageHandlerInterceptor interceptor, DispatcherInvocationContext context)
         {
             _interceptor = interceptor;
             _context = context;

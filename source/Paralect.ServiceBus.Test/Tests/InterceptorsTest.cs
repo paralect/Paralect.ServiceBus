@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.Practices.Unity;
 using NUnit.Framework;
+using Paralect.ServiceBus.Dispatching;
 using Paralect.ServiceBus.Test.Interceptors;
 using Paralect.ServiceBus.Test.Messages;
 
@@ -42,9 +43,11 @@ namespace Paralect.ServiceBus.Test.Tests
                     .MsmqTransport()
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
-                    .AddHandlers(Assembly.GetExecutingAssembly())
-                    .AddInterceptor(typeof(FirstInterceptor))
-                    .AddInterceptor(typeof(SecondInterceptor))
+                    .Dispatcher(d => d
+                        .AddHandlers(Assembly.GetExecutingAssembly())
+                        .AddInterceptor(typeof(FirstInterceptor))
+                        .AddInterceptor(typeof(SecondInterceptor))
+                    )
                     .Out(out config2)
                 );
 

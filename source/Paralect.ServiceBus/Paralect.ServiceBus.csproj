@@ -58,14 +58,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dispatching\DispatcherConfiguration.cs" />
+    <Compile Include="Dispatching\DispatcherConfigurationExtensions.cs" />
+    <Compile Include="ExceptionStrategy.cs" />
     <Compile Include="ServiceBusConfiguration.cs" />
     <Compile Include="Dispatching\Dispatcher.cs" />
     <Compile Include="Endpoint.cs" />
     <Compile Include="EndpointsMapping.cs" />
     <Compile Include="Exceptions\DispatchingException.cs" />
     <Compile Include="Exceptions\HandlerException.cs" />
-    <Compile Include="Dispatching\HandlerRegistry.cs" />
-    <Compile Include="Dispatching\InvocationContext.cs" />
+    <Compile Include="Dispatching\DispatcherHandlerRegistry.cs" />
+    <Compile Include="Dispatching\DispatcherInvocationContext.cs" />
     <Compile Include="Exceptions\TransportMessageDeserializationException.cs" />
     <Compile Include="Exceptions\TransportTimeoutException.cs" />
     <Compile Include="IBus.cs" />
@@ -93,7 +96,7 @@
     <Compile Include="QueueName.cs" />
     <Compile Include="ServiceBus.cs" />
     <Compile Include="TransportMessage.cs" />
-    <Compile Include="QueueObserver.cs" />
+    <Compile Include="SingleThreadQueueObserver.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

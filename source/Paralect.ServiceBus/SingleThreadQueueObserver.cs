@@ -6,13 +6,17 @@ using Paralect.ServiceBus.Utils;
 
 namespace Paralect.ServiceBus
 {
-    public class QueueObserver : IQueueObserver
+    public class SingleThreadQueueObserver : IQueueObserver
     {
         private readonly IQueueProvider _provider;
         private readonly QueueName _queueName;
+        private readonly string _threadName;
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
         private Thread _observerThread;
         private Boolean _continue;
+
+        public event Action<IQueueObserver> ObserverStarted;
+        public event Action<IQueueObserver> ObserverStopped;
         public event Action<QueueMessage, IQueueObserver> MessageReceived;
 
         private String _shutdownMessageId = Guid.NewGuid().ToString();
@@ -25,10 +29,11 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public QueueObserver(IQueueProvider provider, QueueName queueName)
+        public SingleThreadQueueObserver(IQueueProvider queueProvider, QueueName queueName, String threadName = null)
         {
-            _provider = provider;
+            _provider = queueProvider;
             _queueName = queueName;
+            _threadName = threadName;
         }
 
         public void Start()
@@ -36,7 +41,7 @@ namespace Paralect.ServiceBus
             _continue = true;
             _observerThread = new Thread(QueueObserverThread)
             {
-                Name = String.Format("Transport Observer thread for queue {0}", _queueName.GetFriendlyName()),
+                Name = _threadName ?? String.Format("Transport Observer thread for queue {0}", _queueName.GetFriendlyName()),
                 IsBackground = true,
             };
             _observerThread.Start();            
@@ -49,6 +54,10 @@ namespace Paralect.ServiceBus
 
             MutexFactory.LockByMutex(mutexName, () =>
             {
+                var started = ObserverStarted;
+                if (started != null)
+                    started(this);
+
                 _log.Info("Paralect Service [{0}] bus started and listen to the {1} queue...", "_configuration.Name", _queueName.GetFriendlyName());
                 Observe();
             });

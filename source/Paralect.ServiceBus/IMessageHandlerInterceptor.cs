@@ -4,6 +4,6 @@ namespace Paralect.ServiceBus
 {
     public interface IMessageHandlerInterceptor
     {
-        void Intercept(InvocationContext context);
+        void Intercept(DispatcherInvocationContext context);
     }
 }

@@ -7,17 +7,33 @@ namespace Paralect.ServiceBus.Dispatching
     public class Dispatcher
     {
         private readonly IUnityContainer _container;
-        private readonly HandlerRegistry _registry;
+        private readonly DispatcherHandlerRegistry _registry;
         private readonly int _maxRetries;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public Dispatcher(IUnityContainer container, HandlerRegistry registry, Int32 maxRetries)
+        public Dispatcher(DispatcherConfiguration configuration)
         {
-            _container = container;
-            _registry = registry;
-            _maxRetries = maxRetries;
+            if (configuration.BusContainer == null)
+                throw new ArgumentException("Unity Container is not registered for distributor.");
+
+            if (configuration.DispatcherHandlerRegistry == null)
+                throw new ArgumentException("Dispatcher Handler Registry is null in distributor.");
+
+            _container = configuration.BusContainer;
+            _registry = configuration.DispatcherHandlerRegistry;
+            _maxRetries = configuration.MaxRetries;
+        }
+
+        /// <summary>
+        /// Factory method
+        /// </summary>
+        public static Dispatcher Create(Func<DispatcherConfiguration, DispatcherConfiguration> configurationAction)
+        {
+            var config = new DispatcherConfiguration();
+            configurationAction(config);
+            return new Dispatcher(config);
         }
 
         public void Dispatch(Object message)
@@ -35,7 +51,7 @@ namespace Paralect.ServiceBus.Dispatching
                     {
                         try
                         {
-                            var context = new InvocationContext(this, handler, message);
+                            var context = new DispatcherInvocationContext(this, handler, message);
 
                             if (_registry.Interceptors.Count > 0)
                             {
@@ -44,7 +60,7 @@ namespace Paralect.ServiceBus.Dispatching
                                 {
                                     var interceptorType = _registry.Interceptors[i];
                                     var interceptor = (IMessageHandlerInterceptor)_container.Resolve(interceptorType);
-                                    context = new InterceptorInvocationContext(interceptor, context);
+                                    context = new DispatcherInterceptorContext(interceptor, context);
                                 }
                             }
 
@@ -59,8 +75,11 @@ namespace Paralect.ServiceBus.Dispatching
                             attempt++;
 
                             if (attempt == _maxRetries)
+                            {
                                 throw new HandlerException(String.Format(
                                     "Exception in the handler {0} for message {1}", handler.GetType().FullName, message.GetType().FullName), exception, message);
+                                
+                            }
                         }
                     }
                 }

@@ -1,8 +1,10 @@
+using System;
+
 namespace Paralect.ServiceBus
 {
     public class Endpoint
     {
-        public string TypeName { get; set; }
+        public Func<Type, Boolean> TypeChecker { get; set; }
         public QueueName QueueName { get; set; }
 
         /// <summary>

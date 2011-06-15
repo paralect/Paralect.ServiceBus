@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.Unity;
 using NUnit.Framework;
+using Paralect.ServiceBus.Dispatching;
 using Paralect.ServiceBus.Test.Messages;
 
 namespace Paralect.ServiceBus.Test.Tests
@@ -110,7 +111,9 @@ namespace Paralect.ServiceBus.Test.Tests
                     .SetUnityContainer(unity)
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
-                    .AddHandlers(Assembly.GetExecutingAssembly())
+                    .Dispatcher(d => d
+                        .AddHandlers(Assembly.GetExecutingAssembly())
+                    )
                     .Out(out config2)
                     .Modify(configModification2)
                 );

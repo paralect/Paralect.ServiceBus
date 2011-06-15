@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using Microsoft.Practices.Unity;
+using Paralect.ServiceBus.Dispatching;
 
 namespace Paralect.ServiceBus
 {
@@ -14,7 +15,13 @@ namespace Paralect.ServiceBus
 
         public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, String typeWildcard, String queueName, IQueueProvider queueProvider = null)
         {
-            configuration.EndpointsMapping.Map(typeWildcard, queueName, queueProvider);
+            configuration.EndpointsMapping.Map(type => type.FullName.StartsWith(typeWildcard), queueName, queueProvider);
+            return configuration;
+        }
+
+        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, Func<Type, Boolean> typeChecker, String queueName, IQueueProvider queueProvider = null)
+        {
+            configuration.EndpointsMapping.Map(typeChecker, queueName, queueProvider);
             return configuration;
         }
 
@@ -38,39 +45,20 @@ namespace Paralect.ServiceBus
             return configuration;
         }
 
-        public static ServiceBusConfiguration SetHandlerMarkerInterface(this ServiceBusConfiguration configuration, Type markerInterface)
-        {
-            configuration.MessageHandlerMarkerInterface = markerInterface;
-            return configuration;
-        }
-
         public static ServiceBusConfiguration SetNumberOfWorkerThreads(this ServiceBusConfiguration configuration, Int32 number)
         {
             configuration.NumberOfWorkerThreads = number;
             return configuration;
         }
 
-        public static ServiceBusConfiguration SetMaxRetries(this ServiceBusConfiguration configuration, Int32 maxRetries)
+        public static ServiceBusConfiguration Dispatcher(this ServiceBusConfiguration configuration, Func<DispatcherConfiguration, DispatcherConfiguration> configurationAction)
         {
-            configuration.MaxRetries = maxRetries;
-            return configuration;
-        }
+            var dispatcherConfiguration = new DispatcherConfiguration();
+            dispatcherConfiguration.SetUnityContainer(configuration.BusContainer);
+            configurationAction(dispatcherConfiguration);
 
-        public static ServiceBusConfiguration AddHandlers(this ServiceBusConfiguration configuration, Assembly assembly, String[] namespaces)
-        {
-            configuration.HandlerRegistry.Register(assembly, namespaces);
+            configuration.DispatcherConfiguration = dispatcherConfiguration;
             return configuration;
-        }
-
-        public static ServiceBusConfiguration AddInterceptor(this ServiceBusConfiguration configuration, Type interceptor)
-        {
-            configuration.HandlerRegistry.AddInterceptor(interceptor);
-            return configuration;
-        }
-
-        public static ServiceBusConfiguration AddHandlers(this ServiceBusConfiguration configuration, Assembly assembly)
-        {
-            return AddHandlers(configuration, assembly, new string[] { });
         }
 
         public static ServiceBusConfiguration MsmqTransport(this ServiceBusConfiguration configuration)

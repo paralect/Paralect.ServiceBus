@@ -1,6 +1,7 @@
 using System;
 using Paralect.App;
 using Paralect.ServiceBus;
+using Paralect.ServiceBus.Dispatching;
 using Shared.ServerMessages;
 
 namespace Client
@@ -15,7 +16,9 @@ namespace Client
                 .SetInputQueue("PSB.App1.Input")
                 .SetErrorQueue("PSB.App1.Error")
                 .AddEndpoint("Shared.ServerMessages", "PSB.App2.Input")
-                .AddHandlers(typeof(Program).Assembly)
+                .Dispatcher(d => d
+                    .AddHandlers(typeof(Program).Assembly)
+                )
             );
 
             Console.WriteLine("Client started. Press enter to send messages.");

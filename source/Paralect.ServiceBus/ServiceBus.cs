@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Paralect.ServiceBus.Dispatching;
 using Paralect.ServiceBus.Exceptions;
 using Paralect.ServiceBus.Utils;
@@ -13,11 +14,13 @@ namespace Paralect.ServiceBus
         private readonly IQueueProvider _provider;
         private readonly QueueName _inputQueueName;
         private readonly QueueName _errorQueueName;
+        private Exception _lastException;
 
         private IQueue _errorQueue;
         private IQueueObserver _queueObserver;
         private Dispatcher _dispatcher;
-        private ServiceBusStatus _status;
+        private EndpointsMapping _endpointMapping;
+        private ServiceBusStatus _status = ServiceBusStatus.Stopped;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
@@ -30,11 +33,14 @@ namespace Paralect.ServiceBus
             if (configuration.InputQueue == null)
                 throw new ArgumentException("Input queue not configured. Use SetInputQueue() method.");
 
-            _status = ServiceBusStatus.Stopped;
             _configuration = configuration;
             _provider = configuration.QueueProvider;
             _inputQueueName = configuration.InputQueue;
             _errorQueueName = configuration.ErrorQueue;
+            _endpointMapping = configuration.EndpointsMapping;
+
+            if (_configuration.DispatcherConfiguration.BusContainer == null)
+                _configuration.DispatcherConfiguration.BusContainer = configuration.BusContainer;
 
             QueueProviderRegistry.Register(_inputQueueName, _provider);
             QueueProviderRegistry.Register(_errorQueueName, _provider);
@@ -42,7 +48,7 @@ namespace Paralect.ServiceBus
 
         public void Run()
         {
-            foreach (var endpoint in _configuration.EndpointsMapping.Endpoints)
+            foreach (var endpoint in _endpointMapping.Endpoints)
             {
                 if (QueueProviderRegistry.GetQueueProvider(endpoint.QueueName) == null)
                     QueueProviderRegistry.Register(endpoint.QueueName, endpoint.QueueProvider ?? _provider);
@@ -61,10 +67,7 @@ namespace Paralect.ServiceBus
 
         private void PrepareDispatcher()
         {
-            _dispatcher = new Dispatcher(
-                _configuration.BusContainer,
-                _configuration.HandlerRegistry,
-                _configuration.MaxRetries);
+            _dispatcher = new Dispatcher(_configuration.DispatcherConfiguration);
         }
 
         void Observer_MessageReceived(QueueMessage queueMessage, IQueueObserver queueObserver)
@@ -76,23 +79,29 @@ namespace Paralect.ServiceBus
                 if (transportMessage.Messages == null && transportMessage.Messages.Length < 1)
                     return;
 
+                var stop = Stopwatch.StartNew();
+
                 foreach (var message in transportMessage.Messages)
                 {
                     _dispatcher.Dispatch(message);
                 }
+                stop.Stop();
             }
             catch (DispatchingException dispatchingException)
             {
+                _lastException = dispatchingException;
                 _log.ErrorException("Dispatching exception. See logs for more details.", dispatchingException);
                 _errorQueue.Send(queueMessage);
             }
             catch (HandlerException handlerException)
             {
+                _lastException = handlerException;
                 _log.ErrorException("Message handling failed.", handlerException);
                 _errorQueue.Send(queueMessage);
             }
             catch (TransportMessageDeserializationException deserializationException)
             {
+                _lastException = deserializationException;
                 _log.ErrorException("Unable to deserialize message #" + queueMessage.MessageId, deserializationException);
                 _errorQueue.Send(queueMessage);
             }
@@ -151,7 +160,7 @@ namespace Paralect.ServiceBus
             TransportMessage transportMessage = new TransportMessage(messages);
             transportMessage.SentFromQueueName = _inputQueueName.GetFriendlyName();
 
-            var endpoints = _configuration.EndpointsMapping.GetEndpoints(messages[0].GetType());
+            var endpoints = _endpointMapping.GetEndpoints(messages[0].GetType());
 
             foreach (var endpoint in endpoints)
             {
@@ -174,6 +183,14 @@ namespace Paralect.ServiceBus
         public void Publish(object message)
         {
             Send(message);
+        }
+
+        /// <summary>
+        /// Return last exception or null if no exceptions
+        /// </summary>
+        public Exception GetLastException()
+        {
+            return _lastException;
         }
 
         public static IBus Run(Func<ServiceBusConfiguration, ServiceBusConfiguration> configurationAction)

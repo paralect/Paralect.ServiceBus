@@ -45,7 +45,7 @@ namespace Paralect.ServiceBus.InMemory
 
         public virtual IQueueObserver CreateObserver(QueueName queueName)
         {
-            return new QueueObserver(this, queueName);
+            return new SingleThreadQueueObserver(this, queueName);
         }
 
         public QueueMessage TranslateToQueueMessage(TransportMessage transportMessage)

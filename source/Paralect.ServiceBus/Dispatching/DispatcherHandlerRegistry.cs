@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Paralect.ServiceBus.Dispatching
 {
-    public class HandlerRegistry
+    public class DispatcherHandlerRegistry
     {
         private Type _markerInterface;
 
@@ -36,7 +36,7 @@ namespace Paralect.ServiceBus.Dispatching
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public HandlerRegistry()
+        public DispatcherHandlerRegistry()
         {
             _markerInterface = typeof(IMessageHandler<>);
         }
