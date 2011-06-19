@@ -5,7 +5,7 @@ namespace Paralect.ServiceBus.InMemory
 {
     public class InMemoryQueueProvider : IQueueProvider
     {
-        protected Dictionary<String, IQueue> _queues = new Dictionary<string, IQueue>();
+        protected Dictionary<String, IEndpoint> _queues = new Dictionary<string, IEndpoint>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
@@ -26,7 +26,7 @@ namespace Paralect.ServiceBus.InMemory
 
         public virtual void CreateQueue(QueueName queueName)
         {
-            var queue = new InMemoryQueue(queueName, this);
+            var queue = new InMemoryEndpoint(queueName, this);
             _queues[queueName.GetFriendlyName()] = queue;
         }
 
@@ -35,7 +35,7 @@ namespace Paralect.ServiceBus.InMemory
             // nothing to do here...
         }
 
-        public IQueue OpenQueue(QueueName queueName)
+        public IEndpoint OpenQueue(QueueName queueName)
         {
             if (!_queues.ContainsKey(queueName.GetFriendlyName()))
                 throw new Exception(String.Format("There is no queue with name {0}.", queueName.GetFriendlyName()));

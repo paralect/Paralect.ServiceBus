@@ -7,16 +7,16 @@ namespace Paralect.ServiceBus
 {
     public class EndpointsMapping
     {
-        private List<Endpoint> _endpoints = new List<Endpoint>();
+        private List<EndpointDirection> _endpoints = new List<EndpointDirection>();
 
-        public List<Endpoint> Endpoints
+        public List<EndpointDirection> Endpoints
         {
             get { return _endpoints; }
         }
 
         public void Map(Func<Type, Boolean> typeChecker, String queueName, IQueueProvider queueProvider)
         {
-            var endpoint = new Endpoint
+            var endpoint = new EndpointDirection
             {
                 QueueName = new QueueName(queueName),
                 TypeChecker = typeChecker,
@@ -26,9 +26,9 @@ namespace Paralect.ServiceBus
             _endpoints.Add(endpoint);
         }
 
-        public List<Endpoint> GetEndpoints(Type type)
+        public List<EndpointDirection> GetEndpoints(Type type)
         {
-            var endpoints = new List<Endpoint>();
+            var endpoints = new List<EndpointDirection>();
 
             foreach (var endpoint in _endpoints)
             {

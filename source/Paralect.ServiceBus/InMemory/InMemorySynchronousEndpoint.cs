@@ -2,7 +2,7 @@ using System;
 
 namespace Paralect.ServiceBus.InMemory
 {
-    public class InMemorySynchronousQueue : IQueue, IQueueObserver
+    public class InMemorySynchronousEndpoint : IEndpoint, IQueueObserver
     {
         private readonly QueueName _name;
         private readonly IQueueProvider _provider;
@@ -10,7 +10,7 @@ namespace Paralect.ServiceBus.InMemory
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InMemorySynchronousQueue(QueueName name, IQueueProvider provider)
+        public InMemorySynchronousEndpoint(QueueName name, IQueueProvider provider)
         {
             _name = name;
             _provider = provider;
@@ -43,7 +43,7 @@ namespace Paralect.ServiceBus.InMemory
         {
         }
 
-        IQueueProvider IQueue.Provider
+        IQueueProvider IEndpoint.Provider
         {
             get { return _provider; }
         }

@@ -21,7 +21,7 @@ namespace Paralect.ServiceBus.InMemory
         /// </summary>
         public override void CreateQueue(QueueName queueName)
         {
-            var queue = new InMemorySynchronousQueue(queueName, this);
+            var queue = new InMemorySynchronousEndpoint(queueName, this);
             _queues[queueName.GetFriendlyName()] = queue;            
         }
     }

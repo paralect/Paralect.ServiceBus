@@ -4,7 +4,7 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.InMemory
 {
-    public class InMemoryQueue : IQueue
+    public class InMemoryEndpoint : IEndpoint
     {
         private BlockingQueue<QueueMessage> _messages = new BlockingQueue<QueueMessage>();
 
@@ -18,7 +18,7 @@ namespace Paralect.ServiceBus.InMemory
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InMemoryQueue(QueueName name, IQueueProvider provider)
+        public InMemoryEndpoint(QueueName name, IQueueProvider provider)
         {
             _name = name;
             _provider = provider;

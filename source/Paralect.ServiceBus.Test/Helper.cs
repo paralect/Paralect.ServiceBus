@@ -24,7 +24,7 @@ namespace Paralect.ServiceBus.Test
             }
         }
 
-        public static void CreateAndOpenQueue(Action<IQueue> action, IQueueProvider[] providers = null)
+        public static void CreateAndOpenQueue(Action<IEndpoint> action, IQueueProvider[] providers = null)
         {
             var name = new QueueName(Guid.NewGuid().ToString());
             
@@ -53,7 +53,7 @@ namespace Paralect.ServiceBus.Test
             }
         }
 
-        public static void CreateQueue(Action<IQueue> action)
+        public static void CreateQueue(Action<IEndpoint> action)
         {
             var name = new QueueName(Guid.NewGuid().ToString());
             

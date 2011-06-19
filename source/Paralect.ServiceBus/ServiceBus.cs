@@ -9,18 +9,23 @@ namespace Paralect.ServiceBus
     public class ServiceBus : IBus
     {
         private readonly ServiceBusConfiguration _configuration;
-        private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
+        
 
         private readonly IQueueProvider _provider;
         private readonly QueueName _inputQueueName;
         private readonly QueueName _errorQueueName;
         private Exception _lastException;
 
-        private IQueue _errorQueue;
+        private IEndpoint _errorEndpoint;
         private IQueueObserver _queueObserver;
         private Dispatcher _dispatcher;
         private EndpointsMapping _endpointMapping;
         private ServiceBusStatus _status = ServiceBusStatus.Stopped;
+
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private static readonly NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
@@ -57,7 +62,7 @@ namespace Paralect.ServiceBus
             PrepareQueues();
             PrepareDispatcher();
 
-            _errorQueue = _provider.OpenQueue(_errorQueueName);
+            _errorEndpoint = _provider.OpenQueue(_errorQueueName);
 
             _queueObserver = _provider.CreateObserver(_inputQueueName);
             _queueObserver.MessageReceived += Observer_MessageReceived;
@@ -70,7 +75,7 @@ namespace Paralect.ServiceBus
             _dispatcher = new Dispatcher(_configuration.DispatcherConfiguration);
         }
 
-        void Observer_MessageReceived(QueueMessage queueMessage, IQueueObserver queueObserver)
+        private void Observer_MessageReceived(QueueMessage queueMessage, IQueueObserver queueObserver)
         {
             try
             {
@@ -91,19 +96,19 @@ namespace Paralect.ServiceBus
             {
                 _lastException = dispatchingException;
                 _log.ErrorException("Dispatching exception. See logs for more details.", dispatchingException);
-                _errorQueue.Send(queueMessage);
+                _errorEndpoint.Send(queueMessage);
             }
             catch (HandlerException handlerException)
             {
                 _lastException = handlerException;
                 _log.ErrorException("Message handling failed.", handlerException);
-                _errorQueue.Send(queueMessage);
+                _errorEndpoint.Send(queueMessage);
             }
             catch (TransportMessageDeserializationException deserializationException)
             {
                 _lastException = deserializationException;
                 _log.ErrorException("Unable to deserialize message #" + queueMessage.MessageId, deserializationException);
-                _errorQueue.Send(queueMessage);
+                _errorEndpoint.Send(queueMessage);
             }
         }
 
@@ -177,7 +182,7 @@ namespace Paralect.ServiceBus
         {
             TransportMessage transportMessage = new TransportMessage(messages);
             QueueMessage queueMessage = _provider.TranslateToQueueMessage(transportMessage);
-            _errorQueue.Send(queueMessage);
+            _errorEndpoint.Send(queueMessage);
         }
 
         public void Publish(object message)

@@ -2,7 +2,7 @@ using System;
 
 namespace Paralect.ServiceBus
 {
-    public interface IQueue : IDisposable
+    public interface IEndpoint : IDisposable
     {
         /// <summary>
         /// Queue name

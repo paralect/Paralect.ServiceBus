@@ -57,11 +57,11 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Open queue
         /// </summary>
-        public IQueue OpenQueue(QueueName queueName)
+        public IEndpoint OpenQueue(QueueName queueName)
         {
             var queue = new MessageQueue(queueName.GetQueueFormatName());
             SetupQueue(queue);
-            return new MsmqQueue(queueName, queue, this);
+            return new MsmqEndpoint(queueName, queue, this);
         }
 
         public IQueueObserver CreateObserver(QueueName queueName)

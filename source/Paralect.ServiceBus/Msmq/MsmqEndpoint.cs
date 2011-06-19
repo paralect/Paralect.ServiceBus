@@ -6,7 +6,7 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.Msmq
 {
-    public class MsmqQueue : IQueue
+    public class MsmqEndpoint : IEndpoint
     {
         /// <summary>
         /// Logger instance (In future we should  go away from NLog dependency)
@@ -30,7 +30,7 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public MsmqQueue(QueueName name, MessageQueue messageQueue, MsmqQueueProvider provider)
+        public MsmqEndpoint(QueueName name, MessageQueue messageQueue, MsmqQueueProvider provider)
         {
             _name = name;
             _messageQueue = messageQueue;

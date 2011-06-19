@@ -60,10 +60,9 @@
   <ItemGroup>
     <Compile Include="Dispatching\DispatcherConfiguration.cs" />
     <Compile Include="Dispatching\DispatcherConfigurationExtensions.cs" />
-    <Compile Include="ExceptionStrategy.cs" />
     <Compile Include="ServiceBusConfiguration.cs" />
     <Compile Include="Dispatching\Dispatcher.cs" />
-    <Compile Include="Endpoint.cs" />
+    <Compile Include="EndpointDirection.cs" />
     <Compile Include="EndpointsMapping.cs" />
     <Compile Include="Exceptions\DispatchingException.cs" />
     <Compile Include="Exceptions\HandlerException.cs" />
@@ -75,17 +74,17 @@
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessageHandlerInterceptor.cs" />
     <Compile Include="InMemory\BlockingQueue.cs" />
-    <Compile Include="InMemory\InMemoryQueue.cs" />
+    <Compile Include="InMemory\InMemoryEndpoint.cs" />
     <Compile Include="InMemory\InMemoryQueueProvider.cs" />
-    <Compile Include="InMemory\InMemorySynchronousQueue.cs" />
+    <Compile Include="InMemory\InMemorySynchronousEndpoint.cs" />
     <Compile Include="InMemory\InMemorySynchronousQueueProvider.cs" />
     <Compile Include="IQueueProvider.cs" />
-    <Compile Include="IQueue.cs" />
+    <Compile Include="IEndpoint.cs" />
     <Compile Include="IQueueObserver.cs" />
     <Compile Include="Msmq\MsmqMessageFormatter.cs" />
     <Compile Include="Msmq\MsmqPermissionManager.cs" />
     <Compile Include="Msmq\MsmqQueueProvider.cs" />
-    <Compile Include="Msmq\MsmqQueue.cs" />
+    <Compile Include="Msmq\MsmqEndpoint.cs" />
     <Compile Include="QueueProviderRegistry.cs" />
     <Compile Include="ServiceBusConfigurationExtensions.cs" />
     <Compile Include="ServiceBusStatus.cs" />

@@ -27,7 +27,7 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Open queue
         /// </summary>
-        IQueue OpenQueue(QueueName queueName);
+        IEndpoint OpenQueue(QueueName queueName);
 
         /// <summary>
         /// Create new observer
