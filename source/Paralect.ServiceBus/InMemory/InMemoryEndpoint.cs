@@ -6,19 +6,19 @@ namespace Paralect.ServiceBus.InMemory
 {
     public class InMemoryEndpoint : IEndpoint
     {
-        private BlockingQueue<QueueMessage> _messages = new BlockingQueue<QueueMessage>();
+        private BlockingQueue<EndpointMessage> _messages = new BlockingQueue<EndpointMessage>();
 
         /// <summary>
         /// Logger instance (In future we should  go away from NLog dependency)
         /// </summary>
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
-        private readonly QueueName _name;
-        private readonly IQueueProvider _provider;
+        private readonly EndpointAddress _name;
+        private readonly IEndpointProvider _provider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InMemoryEndpoint(QueueName name, IQueueProvider provider)
+        public InMemoryEndpoint(EndpointAddress name, IEndpointProvider provider)
         {
             _name = name;
             _provider = provider;
@@ -29,12 +29,12 @@ namespace Paralect.ServiceBus.InMemory
             
         }
 
-        public QueueName Name
+        public EndpointAddress Name
         {
             get { return _name;  }
         }
 
-        public IQueueProvider Provider
+        public IEndpointProvider Provider
         {
             get { return _provider;  }
         }
@@ -44,14 +44,14 @@ namespace Paralect.ServiceBus.InMemory
             _messages.Clear();
         }
 
-        public void Send(QueueMessage message)
+        public void Send(EndpointMessage message)
         {
             _messages.Enqueue(message);
         }
 
-        public QueueMessage Receive(TimeSpan timeout)
+        public EndpointMessage Receive(TimeSpan timeout)
         {
-            QueueMessage message;
+            EndpointMessage message;
             var result = _messages.TryDequeue(out message, (int) timeout.TotalMilliseconds);
 
             if (!result)

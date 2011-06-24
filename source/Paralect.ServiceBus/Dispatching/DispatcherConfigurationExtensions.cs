@@ -1,14 +1,14 @@
 using System;
 using System.Reflection;
-using Microsoft.Practices.Unity;
+using Microsoft.Practices.ServiceLocation;
 
 namespace Paralect.ServiceBus.Dispatching
 {
     public static class DispatcherConfigurationExtensions
     {
-        public static DispatcherConfiguration SetUnityContainer(this DispatcherConfiguration configuration, IUnityContainer container)
+        public static DispatcherConfiguration SetServiceLocator(this DispatcherConfiguration configuration, IServiceLocator container)
         {
-            configuration.BusContainer = container;
+            configuration.ServiceLocator = container;
             return configuration;
         }
 

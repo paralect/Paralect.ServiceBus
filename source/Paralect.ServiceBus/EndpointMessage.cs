@@ -5,13 +5,16 @@ using System.Text;
 
 namespace Paralect.ServiceBus
 {
-    public class QueueMessage
+    public class EndpointMessage
     {
         /// <summary>
         /// MessageId
         /// </summary>
         public String MessageId { get; set; }
 
+        /// <summary>
+        /// Message Name
+        /// </summary>
         public String MessageName { get; set; }
 
         /// <summary>
@@ -22,13 +25,13 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Message type
         /// </summary>
-        public QueueMessageType MessageType { get; set; }
+        public EndpointMessageType MessageType { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public QueueMessage(Object message) : this(message, Guid.NewGuid().ToString(), "UnnamedMessage", QueueMessageType.Normal) {}
-        public QueueMessage(Object message, String messageId, String messageName, QueueMessageType messageType)
+        public EndpointMessage(Object message) : this(message, Guid.NewGuid().ToString(), "UnnamedMessage", EndpointMessageType.Normal) {}
+        public EndpointMessage(Object message, String messageId, String messageName, EndpointMessageType messageType)
         {
             Message = message;
             MessageId = messageId;

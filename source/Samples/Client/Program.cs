@@ -1,5 +1,6 @@
 using System;
-using Paralect.App;
+using Microsoft.Practices.ServiceLocation;
+using Microsoft.Practices.Unity;
 using Paralect.ServiceBus;
 using Paralect.ServiceBus.Dispatching;
 using Shared.ServerMessages;
@@ -11,7 +12,7 @@ namespace Client
         static void Main(string[] args)
         {
             var bus = ServiceBus.Run(c => c
-                .SetUnityContainer(AppDomainUnityContext.Current)
+                .SetServiceLocator(AppDomainUnityServiceLocator.Current)
                 .MsmqTransport()
                 .SetInputQueue("PSB.App1.Input")
                 .SetErrorQueue("PSB.App1.Error")
@@ -29,6 +30,36 @@ namespace Client
 
                 var message = new SayHelloToServerMessage() { Message = "Hello Server!" };
                 bus.Send(message);
+            }
+        }
+    }
+
+    public class AppDomainUnityServiceLocator
+    {
+        private static Object _lock = new Object();
+
+        private static IServiceLocator _current;
+
+        public static IServiceLocator Current
+        {
+            get
+            {
+                IServiceLocator unity = _current;
+
+                if (unity == null)
+                {
+                    lock (_lock)
+                    {
+                        if (unity == null)
+                        {
+                            unity = new Paralect.ServiceLocator.Unity.UnityServiceLocator(new UnityContainer());
+
+                            _current = unity;
+                        }
+                    }
+                }
+
+                return unity;
             }
         }
     }

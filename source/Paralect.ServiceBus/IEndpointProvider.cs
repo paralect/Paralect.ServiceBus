@@ -2,46 +2,46 @@ using System;
 
 namespace Paralect.ServiceBus
 {
-    public interface IQueueProvider
+    public interface IEndpointProvider
     {
         /// <summary>
         /// Check existence of queue
         /// </summary>
-        Boolean ExistsQueue(QueueName queueName);
+        Boolean ExistsQueue(EndpointAddress endpointAddress);
 
         /// <summary>
         /// Delete particular queue
         /// </summary>
-        void DeleteQueue(QueueName queueName);
+        void DeleteQueue(EndpointAddress endpointAddress);
 
         /// <summary>
         /// Create queue
         /// </summary>
-        void CreateQueue(QueueName queueName);
+        void CreateQueue(EndpointAddress endpointAddress);
 
         /// <summary>
         /// Prepare local queue
         /// </summary>
-        void PrepareQueue(QueueName queueName);
+        void PrepareQueue(EndpointAddress endpointAddress);
 
         /// <summary>
         /// Open queue
         /// </summary>
-        IEndpoint OpenQueue(QueueName queueName);
+        IEndpoint OpenQueue(EndpointAddress endpointAddress);
 
         /// <summary>
         /// Create new observer
         /// </summary>
-        IQueueObserver CreateObserver(QueueName queueName);
+        IEndpointObserver CreateObserver(EndpointAddress endpointAddress);
 
         /// <summary>
         /// Translate from transport message to queue message
         /// </summary>
-        QueueMessage TranslateToQueueMessage(TransportMessage transportMessage);
+        EndpointMessage TranslateToQueueMessage(TransportMessage transportMessage);
 
         /// <summary>
         /// Translate from queue message to transport message
         /// </summary>
-        TransportMessage TranslateToTransportMessage(QueueMessage queueMessage);
+        TransportMessage TranslateToTransportMessage(EndpointMessage endpointMessage);
     }
 }

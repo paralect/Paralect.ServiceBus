@@ -7,12 +7,12 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Queue name
         /// </summary>
-        QueueName Name { get; }
+        EndpointAddress Name { get; }
 
         /// <summary>
         /// Queue manager which create this queue
         /// </summary>
-        IQueueProvider Provider { get; }
+        IEndpointProvider Provider { get; }
 
         /// <summary>
         /// Delete all messages from this queue
@@ -22,11 +22,11 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Send message to this queue
         /// </summary>
-        void Send(QueueMessage message);
+        void Send(EndpointMessage message);
 
         /// <summary>
         /// Blocking call. 
         /// </summary>
-        QueueMessage Receive(TimeSpan timeout);
+        EndpointMessage Receive(TimeSpan timeout);
     }
 }

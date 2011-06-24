@@ -29,8 +29,8 @@ namespace Paralect.ServiceBus.Test.Tests
         [Test]
         public void NotExistCheck()
         {
-            var name = new QueueName(Guid.NewGuid().ToString());
-            var manager = new MsmqQueueProvider();
+            var name = new EndpointAddress(Guid.NewGuid().ToString());
+            var manager = new MsmqEndpointProvider();
             var exists = manager.ExistsQueue(name);
             Assert.AreEqual(exists, false);
         }

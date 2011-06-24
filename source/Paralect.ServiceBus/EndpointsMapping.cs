@@ -14,13 +14,13 @@ namespace Paralect.ServiceBus
             get { return _endpoints; }
         }
 
-        public void Map(Func<Type, Boolean> typeChecker, String queueName, IQueueProvider queueProvider)
+        public void Map(Func<Type, Boolean> typeChecker, String queueName, IEndpointProvider endpointProvider)
         {
             var endpoint = new EndpointDirection
             {
-                QueueName = new QueueName(queueName),
+                EndpointAddress = new EndpointAddress(queueName),
                 TypeChecker = typeChecker,
-                QueueProvider = queueProvider
+                EndpointProvider = endpointProvider
             };
 
             _endpoints.Add(endpoint);
@@ -38,5 +38,16 @@ namespace Paralect.ServiceBus
 
             return endpoints;
         }
+    }
+
+    public class EndpointDirection
+    {
+        public Func<Type, Boolean> TypeChecker { get; set; }
+        public EndpointAddress EndpointAddress { get; set; }
+
+        /// <summary>
+        /// Can be null
+        /// </summary>
+        public IEndpointProvider EndpointProvider { get; set; }
     }
 }

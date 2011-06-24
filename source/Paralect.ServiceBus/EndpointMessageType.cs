@@ -1,6 +1,6 @@
 namespace Paralect.ServiceBus
 {
-    public enum QueueMessageType
+    public enum EndpointMessageType
     {
         Normal,
         Shutdown,

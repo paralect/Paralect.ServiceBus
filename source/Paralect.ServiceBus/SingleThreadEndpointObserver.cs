@@ -6,22 +6,29 @@ using Paralect.ServiceBus.Utils;
 
 namespace Paralect.ServiceBus
 {
-    public class SingleThreadQueueObserver : IQueueObserver
+    /// <summary>
+    /// Observer that use one thread 
+    /// </summary>
+    public class SingleThreadEndpointObserver : IEndpointObserver
     {
-        private readonly IQueueProvider _provider;
-        private readonly QueueName _queueName;
+        private readonly IEndpointProvider _provider;
+        private readonly EndpointAddress _endpointAddress;
         private readonly string _threadName;
-        private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
         private Thread _observerThread;
         private Boolean _continue;
 
-        public event Action<IQueueObserver> ObserverStarted;
-        public event Action<IQueueObserver> ObserverStopped;
-        public event Action<QueueMessage, IQueueObserver> MessageReceived;
+        public event Action<IEndpointObserver> ObserverStarted;
+        public event Action<IEndpointObserver> ObserverStopped;
+        public event Action<EndpointMessage, IEndpointObserver> MessageReceived;
 
-        private String _shutdownMessageId = Guid.NewGuid().ToString();
+        private readonly String _shutdownMessageId = Guid.NewGuid().ToString();
 
-        public IQueueProvider Provider
+        /// <summary>
+        /// Log
+        /// </summary>
+        private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
+
+        public IEndpointProvider Provider
         {
             get { return _provider; }
         }
@@ -29,10 +36,10 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public SingleThreadQueueObserver(IQueueProvider queueProvider, QueueName queueName, String threadName = null)
+        public SingleThreadEndpointObserver(IEndpointProvider endpointProvider, EndpointAddress endpointAddress, String threadName = null)
         {
-            _provider = queueProvider;
-            _queueName = queueName;
+            _provider = endpointProvider;
+            _endpointAddress = endpointAddress;
             _threadName = threadName;
         }
 
@@ -41,7 +48,7 @@ namespace Paralect.ServiceBus
             _continue = true;
             _observerThread = new Thread(QueueObserverThread)
             {
-                Name = _threadName ?? String.Format("Transport Observer thread for queue {0}", _queueName.GetFriendlyName()),
+                Name = _threadName ?? String.Format("Transport Observer thread for queue {0}", _endpointAddress.GetFriendlyName()),
                 IsBackground = true,
             };
             _observerThread.Start();            
@@ -50,7 +57,7 @@ namespace Paralect.ServiceBus
         protected void QueueObserverThread(object state)
         {
             // Only one instance of ServiceBus should listen to a particular queue
-            String mutexName = String.Format("Paralect.ServiceBus.{0}", _queueName.GetFriendlyName());
+            String mutexName = String.Format("Paralect.ServiceBus.{0}", _endpointAddress.GetFriendlyName());
 
             MutexFactory.LockByMutex(mutexName, () =>
             {
@@ -58,7 +65,7 @@ namespace Paralect.ServiceBus
                 if (started != null)
                     started(this);
 
-                _log.Info("Paralect Service [{0}] bus started and listen to the {1} queue...", "_configuration.Name", _queueName.GetFriendlyName());
+                _log.Info("Paralect Service [{0}] bus started and listen to the {1} queue...", "_configuration.Name", _endpointAddress.GetFriendlyName());
                 Observe();
             });
         }
@@ -67,17 +74,17 @@ namespace Paralect.ServiceBus
         {
             try
             {
-                var queue = _provider.OpenQueue(_queueName);
+                var queue = _provider.OpenQueue(_endpointAddress);
 
                 while (_continue)
                 {
                     try
                     {
-                        QueueMessage queueMessage = queue.Receive(TimeSpan.FromDays(10));
+                        EndpointMessage endpointMessage = queue.Receive(TimeSpan.FromDays(10));
                         
-                        if (queueMessage.MessageType == QueueMessageType.Shutdown)
+                        if (endpointMessage.MessageType == EndpointMessageType.Shutdown)
                         {
-                            if (queueMessage.MessageId == _shutdownMessageId)
+                            if (endpointMessage.MessageId == _shutdownMessageId)
                                 break;
 
                             continue;
@@ -85,7 +92,7 @@ namespace Paralect.ServiceBus
 
                         var received = MessageReceived;
                         if (received != null)
-                            received(queueMessage, this);
+                            received(endpointMessage, this);
                         
                     }
                     catch (TransportTimeoutException)
@@ -124,8 +131,8 @@ namespace Paralect.ServiceBus
         private void SendStopMessages()
         {
             _provider
-                .OpenQueue(_queueName)
-                .Send(new QueueMessage(null, _shutdownMessageId, "Shutdown", QueueMessageType.Shutdown));
+                .OpenQueue(_endpointAddress)
+                .Send(new EndpointMessage(null, _shutdownMessageId, "Shutdown", EndpointMessageType.Shutdown));
         }
     }
 }

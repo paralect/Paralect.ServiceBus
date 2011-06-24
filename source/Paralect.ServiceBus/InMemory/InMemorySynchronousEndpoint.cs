@@ -2,15 +2,15 @@ using System;
 
 namespace Paralect.ServiceBus.InMemory
 {
-    public class InMemorySynchronousEndpoint : IEndpoint, IQueueObserver
+    public class InMemorySynchronousEndpoint : IEndpoint, IEndpointObserver
     {
-        private readonly QueueName _name;
-        private readonly IQueueProvider _provider;
+        private readonly EndpointAddress _name;
+        private readonly IEndpointProvider _provider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InMemorySynchronousEndpoint(QueueName name, IQueueProvider provider)
+        public InMemorySynchronousEndpoint(EndpointAddress name, IEndpointProvider provider)
         {
             _name = name;
             _provider = provider;
@@ -21,16 +21,16 @@ namespace Paralect.ServiceBus.InMemory
             
         }
 
-        public QueueName Name
+        public EndpointAddress Name
         {
             get { return _name; }
         }
 
-        public event Action<IQueueObserver> ObserverStarted;
-        public event Action<IQueueObserver> ObserverStopped;
-        public event Action<QueueMessage, IQueueObserver> MessageReceived;
+        public event Action<IEndpointObserver> ObserverStarted;
+        public event Action<IEndpointObserver> ObserverStopped;
+        public event Action<EndpointMessage, IEndpointObserver> MessageReceived;
 
-        IQueueProvider IQueueObserver.Provider
+        IEndpointProvider IEndpointObserver.Provider
         {
             get { return _provider; }
         }
@@ -43,7 +43,7 @@ namespace Paralect.ServiceBus.InMemory
         {
         }
 
-        IQueueProvider IEndpoint.Provider
+        IEndpointProvider IEndpoint.Provider
         {
             get { return _provider; }
         }
@@ -52,7 +52,7 @@ namespace Paralect.ServiceBus.InMemory
         {
         }
 
-        public void Send(QueueMessage message)
+        public void Send(EndpointMessage message)
         {
             var received = MessageReceived;
 
@@ -60,7 +60,7 @@ namespace Paralect.ServiceBus.InMemory
                 received(message, this);
         }
 
-        public QueueMessage Receive(TimeSpan timeout)
+        public EndpointMessage Receive(TimeSpan timeout)
         {
             throw new InvalidOperationException("You cannot call Receive() method on Synchronous Queue");
         }

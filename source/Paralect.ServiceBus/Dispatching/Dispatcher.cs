@@ -1,12 +1,12 @@
 ﻿using System;
-using Microsoft.Practices.Unity;
+using Microsoft.Practices.ServiceLocation;
 using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.Dispatching
 {
     public class Dispatcher
     {
-        private readonly IUnityContainer _container;
+        private readonly IServiceLocator _serviceLocator;
         private readonly DispatcherHandlerRegistry _registry;
         private readonly int _maxRetries;
 
@@ -15,13 +15,13 @@ namespace Paralect.ServiceBus.Dispatching
         /// </summary>
         public Dispatcher(DispatcherConfiguration configuration)
         {
-            if (configuration.BusContainer == null)
+            if (configuration.ServiceLocator == null)
                 throw new ArgumentException("Unity Container is not registered for distributor.");
 
             if (configuration.DispatcherHandlerRegistry == null)
                 throw new ArgumentException("Dispatcher Handler Registry is null in distributor.");
 
-            _container = configuration.BusContainer;
+            _serviceLocator = configuration.ServiceLocator;
             _registry = configuration.DispatcherHandlerRegistry;
             _maxRetries = configuration.MaxRetries;
         }
@@ -44,7 +44,7 @@ namespace Paralect.ServiceBus.Dispatching
 
                 foreach (var handlerType in handlerTypes)
                 {
-                    var handler = _container.Resolve(handlerType);
+                    var handler = _serviceLocator.GetInstance(handlerType);
 
                     var attempt = 0;
                     while (attempt < _maxRetries)
@@ -59,7 +59,7 @@ namespace Paralect.ServiceBus.Dispatching
                                 for (int i = _registry.Interceptors.Count - 1; i >= 0; i--)
                                 {
                                     var interceptorType = _registry.Interceptors[i];
-                                    var interceptor = (IMessageHandlerInterceptor)_container.Resolve(interceptorType);
+                                    var interceptor = (IMessageHandlerInterceptor)_serviceLocator.GetInstance(interceptorType);
                                     context = new DispatcherInterceptorContext(interceptor, context);
                                 }
                             }

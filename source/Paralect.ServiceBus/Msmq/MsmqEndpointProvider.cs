@@ -6,14 +6,14 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.Msmq
 {
-    public class MsmqQueueProvider : IQueueProvider
+    public class MsmqEndpointProvider : IEndpointProvider
     {
         private readonly string _threadName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public MsmqQueueProvider(String threadName = null)
+        public MsmqEndpointProvider(String threadName = null)
         {
             _threadName = threadName;
         }
@@ -21,27 +21,26 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Check existence of queue
         /// </summary>
-        public Boolean ExistsQueue(QueueName queueName)
+        public Boolean ExistsQueue(EndpointAddress endpointAddress)
         {
-            return MessageQueue.Exists(queueName.GetQueueLocalName());
+            return MessageQueue.Exists(endpointAddress.GetLocalName());
         }
 
         /// <summary>
         /// Create queue
         /// </summary>
-        public void CreateQueue(QueueName queueName)
+        public void CreateQueue(EndpointAddress endpointAddress)
         {
-            var queue = MessageQueue.Create(queueName.GetQueueLocalName(), true); // transactional
+            var queue = MessageQueue.Create(endpointAddress.GetLocalName(), true); // transactional
             SetupQueue(queue);
-//            SetPermissions(queue);
         }
 
         /// <summary>
         /// Create queue
         /// </summary>
-        public void PrepareQueue(QueueName queueName)
+        public void PrepareQueue(EndpointAddress endpointAddress)
         {
-            var queue = new MessageQueue(queueName.GetQueueFormatName());
+            var queue = new MessageQueue(endpointAddress.GetFormatName());
             SetupQueue(queue);
             SetPermissions(queue);
         }
@@ -49,24 +48,24 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Delete particular queue
         /// </summary>
-        public void DeleteQueue(QueueName queueName)
+        public void DeleteQueue(EndpointAddress endpointAddress)
         {
-            MessageQueue.Delete(queueName.GetQueueFormatName());
+            MessageQueue.Delete(endpointAddress.GetFormatName());
         }
 
         /// <summary>
         /// Open queue
         /// </summary>
-        public IEndpoint OpenQueue(QueueName queueName)
+        public IEndpoint OpenQueue(EndpointAddress endpointAddress)
         {
-            var queue = new MessageQueue(queueName.GetQueueFormatName());
+            var queue = new MessageQueue(endpointAddress.GetFormatName());
             SetupQueue(queue);
-            return new MsmqEndpoint(queueName, queue, this);
+            return new MsmqEndpoint(endpointAddress, queue, this);
         }
 
-        public IQueueObserver CreateObserver(QueueName queueName)
+        public IEndpointObserver CreateObserver(EndpointAddress endpointAddress)
         {
-            return new SingleThreadQueueObserver(this, queueName, _threadName);
+            return new SingleThreadEndpointObserver(this, endpointAddress, _threadName);
         }
 
         private void SetupQueue(MessageQueue queue)
@@ -84,7 +83,7 @@ namespace Paralect.ServiceBus.Msmq
             MsmqPermissionManager.SetPermissionsForQueue(queue, userName);
         }
 
-        public QueueMessage TranslateToQueueMessage(TransportMessage transportMessage)
+        public EndpointMessage TranslateToQueueMessage(TransportMessage transportMessage)
         {
             // do not send empty messages
             if (transportMessage.Messages == null || transportMessage.Messages.Length == 0)
@@ -97,18 +96,18 @@ namespace Paralect.ServiceBus.Msmq
                 Label = transportMessage.Messages.First().GetType().FullName
             };
 
-            return new QueueMessage(message);
+            return new EndpointMessage(message);
         }
 
-        public TransportMessage TranslateToTransportMessage(QueueMessage queueMessage)
+        public TransportMessage TranslateToTransportMessage(EndpointMessage endpointMessage)
         {
-            if (queueMessage.Message == null)
+            if (endpointMessage.Message == null)
                 throw new NullReferenceException("QueueMessage.Message is null");
 
-            if (!(queueMessage.Message is System.Messaging.Message))
+            if (!(endpointMessage.Message is System.Messaging.Message))
                 throw new ArgumentException("QueueMessage.Message type should be System.Messaging.Message.");
 
-            var message = (System.Messaging.Message)queueMessage.Message;
+            var message = (System.Messaging.Message)endpointMessage.Message;
 
             Object messageObject;
             try

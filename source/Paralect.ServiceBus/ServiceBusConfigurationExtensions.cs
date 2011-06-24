@@ -1,89 +1,122 @@
 using System;
 using System.Reflection;
-using Microsoft.Practices.Unity;
+using Microsoft.Practices.ServiceLocation;
 using Paralect.ServiceBus.Dispatching;
 
 namespace Paralect.ServiceBus
 {
     public static class ServiceBusConfigurationExtensions
     {
+        /// <summary>
+        /// Name of instance of ServiceBus. Used for logging.
+        /// </summary>
         public static ServiceBusConfiguration SetName(this ServiceBusConfiguration configuration, string name)
         {
             configuration.Name = name;
             return configuration;
         }
 
-        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, String typeWildcard, String queueName, IQueueProvider queueProvider = null)
+        /// <summary>
+        /// Add endpoint mapped by type full name
+        /// </summary>
+        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, String typeWildcard, String queueName, IEndpointProvider endpointProvider = null)
         {
-            configuration.EndpointsMapping.Map(type => type.FullName.StartsWith(typeWildcard), queueName, queueProvider);
+            configuration.EndpointsMapping.Map(type => type.FullName.StartsWith(typeWildcard), queueName, endpointProvider);
             return configuration;
         }
 
-        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, Func<Type, Boolean> typeChecker, String queueName, IQueueProvider queueProvider = null)
+        /// <summary>
+        /// Add endpoint, mapped by function
+        /// </summary>
+        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, Func<Type, Boolean> typeChecker, String queueName, IEndpointProvider endpointProvider = null)
         {
-            configuration.EndpointsMapping.Map(typeChecker, queueName, queueProvider);
+            configuration.EndpointsMapping.Map(typeChecker, queueName, endpointProvider);
             return configuration;
         }
 
+        /// <summary>
+        /// Set name of Input Endpoint
+        /// </summary>
         public static ServiceBusConfiguration SetInputQueue(this ServiceBusConfiguration configuration, String queueName)
         {
-            configuration.InputQueue = new QueueName(queueName);
+            configuration.InputQueue = new EndpointAddress(queueName);
 
             // If error queue is not defined, set error queue name based on input queue name:
             if (configuration.ErrorQueue == null)
             {
                 var errorQueueName = String.Format("{0}.Errors@{1}", configuration.InputQueue.Name, configuration.InputQueue.ComputerName);
-                configuration.ErrorQueue = new QueueName(errorQueueName);
+                configuration.ErrorQueue = new EndpointAddress(errorQueueName);
             }
 
             return configuration;
         }
 
+        /// <summary>
+        /// Set name of Error Endpoint
+        /// </summary>
         public static ServiceBusConfiguration SetErrorQueue(this ServiceBusConfiguration configuration, String queueName)
         {
-            configuration.ErrorQueue = new QueueName(queueName);
+            configuration.ErrorQueue = new EndpointAddress(queueName);
             return configuration;
         }
 
+        /// <summary>
+        /// Set number of worker threads
+        /// </summary>
         public static ServiceBusConfiguration SetNumberOfWorkerThreads(this ServiceBusConfiguration configuration, Int32 number)
         {
             configuration.NumberOfWorkerThreads = number;
             return configuration;
         }
 
+        /// <summary>
+        /// Configure dispatcher
+        /// </summary>
         public static ServiceBusConfiguration Dispatcher(this ServiceBusConfiguration configuration, Func<DispatcherConfiguration, DispatcherConfiguration> configurationAction)
         {
             var dispatcherConfiguration = new DispatcherConfiguration();
-            dispatcherConfiguration.SetUnityContainer(configuration.BusContainer);
+            dispatcherConfiguration.SetServiceLocator(configuration.ServiceLocator);
             configurationAction(dispatcherConfiguration);
 
             configuration.DispatcherConfiguration = dispatcherConfiguration;
             return configuration;
         }
 
+        /// <summary>
+        /// Use MSMQ transport
+        /// </summary>
         public static ServiceBusConfiguration MsmqTransport(this ServiceBusConfiguration configuration)
         {
-            configuration.QueueProvider = new Msmq.MsmqQueueProvider();
+            configuration.EndpointProvider = new Msmq.MsmqEndpointProvider();
             return configuration;
         }
 
+        /// <summary>
+        /// Use memory transport (async)
+        /// </summary>
         public static ServiceBusConfiguration MemoryTransport(this ServiceBusConfiguration configuration)
         {
-            configuration.QueueProvider = new InMemory.InMemoryQueueProvider();
+            configuration.EndpointProvider = new InMemory.InMemoryEndpointProvider();
             return configuration;
         }
 
+        /// <summary>
+        /// Use memory transport (sync)
+        /// </summary>
         public static ServiceBusConfiguration MemorySynchronousTransport(this ServiceBusConfiguration configuration)
         {
-            configuration.QueueProvider = new InMemory.InMemorySynchronousQueueProvider();
+            configuration.EndpointProvider = new InMemory.InMemorySynchronousEndpointProvider();
             return configuration;
         }        
         
-        public static ServiceBusConfiguration SetUnityContainer(this ServiceBusConfiguration configuration, IUnityContainer container)
+        /// <summary>
+        /// Set Unity Container
+        /// </summary>
+        public static ServiceBusConfiguration SetServiceLocator(this ServiceBusConfiguration configuration, IServiceLocator container)
         {
-            configuration.BusContainer = container;
+            configuration.ServiceLocator = container;
             return configuration;
-        }  
+        }
       
         public static ServiceBusConfiguration Modify(this ServiceBusConfiguration configuration, Action<ServiceBusConfiguration> action)
         {

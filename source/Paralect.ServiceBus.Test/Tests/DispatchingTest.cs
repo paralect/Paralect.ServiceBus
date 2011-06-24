@@ -2,6 +2,7 @@ using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Paralect.ServiceBus.Dispatching;
 using Paralect.ServiceBus.Test.Messages;
+using UnityServiceLocator = Paralect.ServiceLocator.Unity.UnityServiceLocator;
 
 namespace Paralect.ServiceBus.Test.Tests
 {
@@ -16,7 +17,7 @@ namespace Paralect.ServiceBus.Test.Tests
                 .RegisterInstance(tracker);
 
             var dispatcher = Dispatcher.Create(d => d
-                .SetUnityContainer(unity)
+                .SetServiceLocator(new UnityServiceLocator(unity))
                 .SetMaxRetries(1)
                 .AddHandlers(typeof(DispatchingTest).Assembly)
             );

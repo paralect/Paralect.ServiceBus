@@ -1,5 +1,5 @@
 using System;
-using Microsoft.Practices.Unity;
+using Microsoft.Practices.ServiceLocation;
 
 namespace Paralect.ServiceBus.Dispatching
 {
@@ -7,7 +7,7 @@ namespace Paralect.ServiceBus.Dispatching
     {
         public DispatcherHandlerRegistry DispatcherHandlerRegistry { get; set; }
         public int MaxRetries { get; set; }
-        public IUnityContainer BusContainer { get; set; }
+        public IServiceLocator ServiceLocator { get; set; }
         public Type MessageHandlerMarkerInterface { get; set; }
 
         /// <summary>

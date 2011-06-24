@@ -33,10 +33,10 @@ namespace Paralect.ServiceBus.Test.Tests
                 Helper.AssertTransportMessage(transportMessage,
                     queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             },
-            new IQueueProvider[]
+            new IEndpointProvider[]
             {
-                new MsmqQueueProvider(),
-                new InMemoryQueueProvider()
+                new MsmqEndpointProvider(),
+                new InMemoryEndpointProvider()
             });
         }      
   
@@ -59,10 +59,10 @@ namespace Paralect.ServiceBus.Test.Tests
                 Helper.AssertTransportMessage(transportMessage,
                     queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             },
-            new IQueueProvider[]
+            new IEndpointProvider[]
             {
-                new MsmqQueueProvider(),
-                new InMemoryQueueProvider()
+                new MsmqEndpointProvider(),
+                new InMemoryEndpointProvider()
             });
         }  
 
@@ -89,10 +89,10 @@ namespace Paralect.ServiceBus.Test.Tests
                 Helper.AssertTransportMessage(transportMessage,
                     queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             },
-            new IQueueProvider[]
+            new IEndpointProvider[]
             {
-                new MsmqQueueProvider(),
-                new InMemoryQueueProvider()
+                new MsmqEndpointProvider(),
+                new InMemoryEndpointProvider()
             });
         }
     }

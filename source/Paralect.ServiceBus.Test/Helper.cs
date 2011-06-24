@@ -24,15 +24,15 @@ namespace Paralect.ServiceBus.Test
             }
         }
 
-        public static void CreateAndOpenQueue(Action<IEndpoint> action, IQueueProvider[] providers = null)
+        public static void CreateAndOpenQueue(Action<IEndpoint> action, IEndpointProvider[] providers = null)
         {
-            var name = new QueueName(Guid.NewGuid().ToString());
+            var name = new EndpointAddress(Guid.NewGuid().ToString());
             
-            var managers = providers ?? new IQueueProvider[]
+            var managers = providers ?? new IEndpointProvider[]
             {
-                new MsmqQueueProvider(),
-                new InMemoryQueueProvider(),
-                new InMemorySynchronousQueueProvider()
+                new MsmqEndpointProvider(),
+                new InMemoryEndpointProvider(),
+                new InMemorySynchronousEndpointProvider()
             };
 
             foreach (var manager in managers)
@@ -55,13 +55,13 @@ namespace Paralect.ServiceBus.Test
 
         public static void CreateQueue(Action<IEndpoint> action)
         {
-            var name = new QueueName(Guid.NewGuid().ToString());
+            var name = new EndpointAddress(Guid.NewGuid().ToString());
             
-            var managers = new IQueueProvider[]
+            var managers = new IEndpointProvider[]
             {
-                new MsmqQueueProvider(),
-                new InMemoryQueueProvider(),
-                new InMemorySynchronousQueueProvider()
+                new MsmqEndpointProvider(),
+                new InMemoryEndpointProvider(),
+                new InMemorySynchronousEndpointProvider()
             };
 
             foreach (var manager in managers)

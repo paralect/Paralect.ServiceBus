@@ -31,9 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Practices.Unity, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\libs\Microsoft.Practices.Unity\Microsoft.Practices.Unity.dll</HintPath>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\..\libs\Microsoft.Practices\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\..\libs\MongoDriver\MongoDB.Bson.dll</HintPath>
@@ -62,7 +61,6 @@
     <Compile Include="Dispatching\DispatcherConfigurationExtensions.cs" />
     <Compile Include="ServiceBusConfiguration.cs" />
     <Compile Include="Dispatching\Dispatcher.cs" />
-    <Compile Include="EndpointDirection.cs" />
     <Compile Include="EndpointsMapping.cs" />
     <Compile Include="Exceptions\DispatchingException.cs" />
     <Compile Include="Exceptions\HandlerException.cs" />
@@ -75,27 +73,27 @@
     <Compile Include="IMessageHandlerInterceptor.cs" />
     <Compile Include="InMemory\BlockingQueue.cs" />
     <Compile Include="InMemory\InMemoryEndpoint.cs" />
-    <Compile Include="InMemory\InMemoryQueueProvider.cs" />
+    <Compile Include="InMemory\InMemoryEndpointProvider.cs" />
     <Compile Include="InMemory\InMemorySynchronousEndpoint.cs" />
-    <Compile Include="InMemory\InMemorySynchronousQueueProvider.cs" />
-    <Compile Include="IQueueProvider.cs" />
+    <Compile Include="InMemory\InMemorySynchronousEndpointProvider.cs" />
+    <Compile Include="IEndpointProvider.cs" />
     <Compile Include="IEndpoint.cs" />
-    <Compile Include="IQueueObserver.cs" />
+    <Compile Include="IEndpointObserver.cs" />
     <Compile Include="Msmq\MsmqMessageFormatter.cs" />
     <Compile Include="Msmq\MsmqPermissionManager.cs" />
-    <Compile Include="Msmq\MsmqQueueProvider.cs" />
+    <Compile Include="Msmq\MsmqEndpointProvider.cs" />
     <Compile Include="Msmq\MsmqEndpoint.cs" />
-    <Compile Include="QueueProviderRegistry.cs" />
+    <Compile Include="EndpointProviderRegistry.cs" />
     <Compile Include="ServiceBusConfigurationExtensions.cs" />
     <Compile Include="ServiceBusStatus.cs" />
     <Compile Include="Utils\MutexFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueueMessage.cs" />
-    <Compile Include="QueueMessageType.cs" />
-    <Compile Include="QueueName.cs" />
+    <Compile Include="EndpointMessage.cs" />
+    <Compile Include="EndpointMessageType.cs" />
+    <Compile Include="EndpointAddress.cs" />
     <Compile Include="ServiceBus.cs" />
     <Compile Include="TransportMessage.cs" />
-    <Compile Include="SingleThreadQueueObserver.cs" />
+    <Compile Include="SingleThreadEndpointObserver.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

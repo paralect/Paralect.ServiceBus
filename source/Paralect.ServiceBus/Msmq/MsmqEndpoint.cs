@@ -13,16 +13,16 @@ namespace Paralect.ServiceBus.Msmq
         /// </summary>
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly QueueName _name;
+        private readonly EndpointAddress _name;
         private readonly MessageQueue _messageQueue;
-        private readonly MsmqQueueProvider _provider;
+        private readonly MsmqEndpointProvider _provider;
 
-        public QueueName Name
+        public EndpointAddress Name
         {
             get { return _name; }
         }
 
-        public IQueueProvider Provider
+        public IEndpointProvider Provider
         {
             get { return _provider;  }
         }
@@ -30,7 +30,7 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public MsmqEndpoint(QueueName name, MessageQueue messageQueue, MsmqQueueProvider provider)
+        public MsmqEndpoint(EndpointAddress name, MessageQueue messageQueue, MsmqEndpointProvider provider)
         {
             _name = name;
             _messageQueue = messageQueue;
@@ -45,7 +45,7 @@ namespace Paralect.ServiceBus.Msmq
             _messageQueue.Purge();
         }
 
-        public void Send(QueueMessage message)
+        public void Send(EndpointMessage message)
         {
 
             Message msmqMessage = null;
@@ -73,7 +73,7 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Blocking call
         /// </summary>
-        public QueueMessage Receive(TimeSpan timeout)
+        public EndpointMessage Receive(TimeSpan timeout)
         {
             try
             {
@@ -86,9 +86,9 @@ namespace Paralect.ServiceBus.Msmq
                 var message = _messageQueue.Receive(timeout);
                 var messageId = System.Text.Encoding.ASCII.GetString(message.Extension);
                 var messageName = message.Label;
-                var messageType = (QueueMessageType) message.AppSpecific;
+                var messageType = (EndpointMessageType) message.AppSpecific;
 
-                return new QueueMessage(message, messageId, messageName, messageType);
+                return new EndpointMessage(message, messageId, messageName, messageType);
             }
             catch (MessageQueueException mqe)
             {

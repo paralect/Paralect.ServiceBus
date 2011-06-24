@@ -5,6 +5,7 @@ using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Paralect.ServiceBus.Dispatching;
 using Paralect.ServiceBus.Test.Messages;
+using UnityServiceLocator = Paralect.ServiceLocator.Unity.UnityServiceLocator;
 
 namespace Paralect.ServiceBus.Test.Tests
 {
@@ -87,8 +88,8 @@ namespace Paralect.ServiceBus.Test.Tests
 
         private void TestTwoBus(Action<ServiceBusConfiguration> configModification1, Action<ServiceBusConfiguration> configModification2)
         {
-            var inputQueueName1 = new QueueName(Guid.NewGuid().ToString());
-            var inputQueueName2 = new QueueName(Guid.NewGuid().ToString());
+            var inputQueueName1 = new EndpointAddress(Guid.NewGuid().ToString());
+            var inputQueueName2 = new EndpointAddress(Guid.NewGuid().ToString());
 
             ServiceBusConfiguration config1 = null;
             ServiceBusConfiguration config2 = null;
@@ -100,7 +101,7 @@ namespace Paralect.ServiceBus.Test.Tests
                     .RegisterInstance(tracker);
 
                 var bus1 = ServiceBus.Create(c => c
-                    .SetUnityContainer(unity)
+                    .SetServiceLocator(new UnityServiceLocator(unity))
                     .SetInputQueue(inputQueueName1.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName2.GetFriendlyName())
                     .Modify(configModification1)
@@ -108,7 +109,7 @@ namespace Paralect.ServiceBus.Test.Tests
                 );
 
                 var bus2 = ServiceBus.Create(c => c
-                    .SetUnityContainer(unity)
+                    .SetServiceLocator(new UnityServiceLocator(unity))
                     .SetInputQueue(inputQueueName2.GetFriendlyName())
                     .AddEndpoint("Paralect.ServiceBus.Test.Messages", inputQueueName1.GetFriendlyName())
                     .Dispatcher(d => d
@@ -139,11 +140,11 @@ namespace Paralect.ServiceBus.Test.Tests
             }
             finally
             {
-                var queueProvider1 = QueueProviderRegistry.GetQueueProvider(inputQueueName1);
+                var queueProvider1 = EndpointProviderRegistry.GetQueueProvider(inputQueueName1);
                 queueProvider1.DeleteQueue(config1.InputQueue);
                 queueProvider1.DeleteQueue(config1.ErrorQueue);
 
-                var queueProvider2 = QueueProviderRegistry.GetQueueProvider(inputQueueName2);
+                var queueProvider2 = EndpointProviderRegistry.GetQueueProvider(inputQueueName2);
                 queueProvider2.DeleteQueue(config2.InputQueue);
                 queueProvider2.DeleteQueue(config2.ErrorQueue);
             }
