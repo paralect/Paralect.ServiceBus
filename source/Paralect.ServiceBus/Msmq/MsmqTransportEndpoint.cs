@@ -6,35 +6,35 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.Msmq
 {
-    public class MsmqEndpoint : IEndpoint
+    public class MsmqTransportEndpoint : ITransportEndpoint
     {
         /// <summary>
         /// Logger instance (In future we should  go away from NLog dependency)
         /// </summary>
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly EndpointAddress _name;
+        private readonly TransportEndpointAddress _name;
         private readonly MessageQueue _messageQueue;
-        private readonly MsmqEndpointProvider _provider;
+        private readonly MsmqTransport _transport;
 
-        public EndpointAddress Name
+        public TransportEndpointAddress Name
         {
             get { return _name; }
         }
 
-        public IEndpointProvider Provider
+        public ITransport Transport
         {
-            get { return _provider;  }
+            get { return _transport;  }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public MsmqEndpoint(EndpointAddress name, MessageQueue messageQueue, MsmqEndpointProvider provider)
+        public MsmqTransportEndpoint(TransportEndpointAddress name, MessageQueue messageQueue, MsmqTransport transport)
         {
             _name = name;
             _messageQueue = messageQueue;
-            _provider = provider;
+            _transport = transport;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Paralect.ServiceBus.Msmq
             _messageQueue.Purge();
         }
 
-        public void Send(EndpointMessage message)
+        public void Send(TransportMessage message)
         {
 
             Message msmqMessage = null;
@@ -73,7 +73,7 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Blocking call
         /// </summary>
-        public EndpointMessage Receive(TimeSpan timeout)
+        public TransportMessage Receive(TimeSpan timeout)
         {
             try
             {
@@ -86,9 +86,9 @@ namespace Paralect.ServiceBus.Msmq
                 var message = _messageQueue.Receive(timeout);
                 var messageId = System.Text.Encoding.ASCII.GetString(message.Extension);
                 var messageName = message.Label;
-                var messageType = (EndpointMessageType) message.AppSpecific;
+                var messageType = (TransportMessageType) message.AppSpecific;
 
-                return new EndpointMessage(message, messageId, messageName, messageType);
+                return new TransportMessage(message, messageId, messageName, messageType);
             }
             catch (MessageQueueException mqe)
             {

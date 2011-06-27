@@ -10,7 +10,7 @@ namespace Paralect.ServiceBus.Test
 {
     public class Helper
     {
-        public static void AssertTransportMessage(TransportMessage sent, TransportMessage received)
+        public static void AssertTransportMessage(ServiceBusMessage sent, ServiceBusMessage received)
         {
             Assert.AreEqual(sent.Messages.Length, received.Messages.Length);
 
@@ -24,57 +24,57 @@ namespace Paralect.ServiceBus.Test
             }
         }
 
-        public static void CreateAndOpenQueue(Action<IEndpoint> action, IEndpointProvider[] providers = null)
+        public static void CreateAndOpenQueue(Action<ITransportEndpoint> action, ITransport[] providers = null)
         {
-            var name = new EndpointAddress(Guid.NewGuid().ToString());
+            var name = new TransportEndpointAddress(Guid.NewGuid().ToString());
             
-            var managers = providers ?? new IEndpointProvider[]
+            var managers = providers ?? new ITransport[]
             {
-                new MsmqEndpointProvider(),
-                new InMemoryEndpointProvider(),
-                new InMemorySynchronousEndpointProvider()
+                new MsmqTransport(),
+                new InMemoryTransport(),
+                new InMemorySynchronousTransport()
             };
 
             foreach (var manager in managers)
             {
                 try
                 {
-                    manager.CreateQueue(name);
+                    manager.CreateEndpoint(name);
 
-                    using (var queue = manager.OpenQueue(name))
+                    using (var queue = manager.OpenEndpoint(name))
                     {
                         action(queue);
                     }
                 }
                 finally
                 {
-                    manager.DeleteQueue(name);
+                    manager.DeleteEndpoint(name);
                 }
             }
         }
 
-        public static void CreateQueue(Action<IEndpoint> action)
+        public static void CreateQueue(Action<ITransportEndpoint> action)
         {
-            var name = new EndpointAddress(Guid.NewGuid().ToString());
+            var name = new TransportEndpointAddress(Guid.NewGuid().ToString());
             
-            var managers = new IEndpointProvider[]
+            var managers = new ITransport[]
             {
-                new MsmqEndpointProvider(),
-                new InMemoryEndpointProvider(),
-                new InMemorySynchronousEndpointProvider()
+                new MsmqTransport(),
+                new InMemoryTransport(),
+                new InMemorySynchronousTransport()
             };
 
             foreach (var manager in managers)
             {
                 try
                 {
-                    manager.CreateQueue(name);
-                    var queue = manager.OpenQueue(name);
+                    manager.CreateEndpoint(name);
+                    var queue = manager.OpenEndpoint(name);
                     action(queue);
                 }
                 finally
                 {
-                    manager.DeleteQueue(name);
+                    manager.DeleteEndpoint(name);
                 }
             }
         }

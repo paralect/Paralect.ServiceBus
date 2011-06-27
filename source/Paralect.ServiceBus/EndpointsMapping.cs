@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,13 +14,13 @@ namespace Paralect.ServiceBus
             get { return _endpoints; }
         }
 
-        public void Map(Func<Type, Boolean> typeChecker, String queueName, IEndpointProvider endpointProvider)
+        public void Map(Func<Type, Boolean> typeChecker, String queueName, ITransport transport)
         {
             var endpoint = new EndpointDirection
             {
-                EndpointAddress = new EndpointAddress(queueName),
+                Address = new TransportEndpointAddress(queueName),
                 TypeChecker = typeChecker,
-                EndpointProvider = endpointProvider
+                Transport = transport
             };
 
             _endpoints.Add(endpoint);
@@ -43,11 +43,11 @@ namespace Paralect.ServiceBus
     public class EndpointDirection
     {
         public Func<Type, Boolean> TypeChecker { get; set; }
-        public EndpointAddress EndpointAddress { get; set; }
+        public TransportEndpointAddress Address { get; set; }
 
         /// <summary>
         /// Can be null
         /// </summary>
-        public IEndpointProvider EndpointProvider { get; set; }
+        public ITransport Transport { get; set; }
     }
 }

@@ -6,14 +6,14 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.Msmq
 {
-    public class MsmqEndpointProvider : IEndpointProvider
+    public class MsmqTransport : ITransport
     {
         private readonly string _threadName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public MsmqEndpointProvider(String threadName = null)
+        public MsmqTransport(String threadName = null)
         {
             _threadName = threadName;
         }
@@ -21,26 +21,26 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Check existence of queue
         /// </summary>
-        public Boolean ExistsQueue(EndpointAddress endpointAddress)
+        public Boolean ExistsEndpoint(TransportEndpointAddress transportEndpointAddress)
         {
-            return MessageQueue.Exists(endpointAddress.GetLocalName());
+            return MessageQueue.Exists(transportEndpointAddress.GetLocalName());
         }
 
         /// <summary>
         /// Create queue
         /// </summary>
-        public void CreateQueue(EndpointAddress endpointAddress)
+        public void CreateEndpoint(TransportEndpointAddress transportEndpointAddress)
         {
-            var queue = MessageQueue.Create(endpointAddress.GetLocalName(), true); // transactional
+            var queue = MessageQueue.Create(transportEndpointAddress.GetLocalName(), true); // transactional
             SetupQueue(queue);
         }
 
         /// <summary>
         /// Create queue
         /// </summary>
-        public void PrepareQueue(EndpointAddress endpointAddress)
+        public void PrepareEndpoint(TransportEndpointAddress transportEndpointAddress)
         {
-            var queue = new MessageQueue(endpointAddress.GetFormatName());
+            var queue = new MessageQueue(transportEndpointAddress.GetFormatName());
             SetupQueue(queue);
             SetPermissions(queue);
         }
@@ -48,24 +48,24 @@ namespace Paralect.ServiceBus.Msmq
         /// <summary>
         /// Delete particular queue
         /// </summary>
-        public void DeleteQueue(EndpointAddress endpointAddress)
+        public void DeleteEndpoint(TransportEndpointAddress transportEndpointAddress)
         {
-            MessageQueue.Delete(endpointAddress.GetFormatName());
+            MessageQueue.Delete(transportEndpointAddress.GetFormatName());
         }
 
         /// <summary>
         /// Open queue
         /// </summary>
-        public IEndpoint OpenQueue(EndpointAddress endpointAddress)
+        public ITransportEndpoint OpenEndpoint(TransportEndpointAddress transportEndpointAddress)
         {
-            var queue = new MessageQueue(endpointAddress.GetFormatName());
+            var queue = new MessageQueue(transportEndpointAddress.GetFormatName());
             SetupQueue(queue);
-            return new MsmqEndpoint(endpointAddress, queue, this);
+            return new MsmqTransportEndpoint(transportEndpointAddress, queue, this);
         }
 
-        public IEndpointObserver CreateObserver(EndpointAddress endpointAddress)
+        public ITransportEndpointObserver CreateObserver(TransportEndpointAddress transportEndpointAddress)
         {
-            return new SingleThreadEndpointObserver(this, endpointAddress, _threadName);
+            return new SingleThreadTransportEndpointObserver(this, transportEndpointAddress, _threadName);
         }
 
         private void SetupQueue(MessageQueue queue)
@@ -83,31 +83,31 @@ namespace Paralect.ServiceBus.Msmq
             MsmqPermissionManager.SetPermissionsForQueue(queue, userName);
         }
 
-        public EndpointMessage TranslateToQueueMessage(TransportMessage transportMessage)
+        public TransportMessage TranslateToTransportMessage(ServiceBusMessage serviceBusMessage)
         {
             // do not send empty messages
-            if (transportMessage.Messages == null || transportMessage.Messages.Length == 0)
+            if (serviceBusMessage.Messages == null || serviceBusMessage.Messages.Length == 0)
                 throw new ArgumentException("Transport message is null or empty.");
 
             Message message = new Message
             {
-                Body = transportMessage,
+                Body = serviceBusMessage,
                 Formatter = new MsmqMessageFormatter(),
-                Label = transportMessage.Messages.First().GetType().FullName
+                Label = serviceBusMessage.Messages.First().GetType().FullName
             };
 
-            return new EndpointMessage(message);
+            return new TransportMessage(message);
         }
 
-        public TransportMessage TranslateToTransportMessage(EndpointMessage endpointMessage)
+        public ServiceBusMessage TranslateToServiceBusMessage(TransportMessage transportMessage)
         {
-            if (endpointMessage.Message == null)
+            if (transportMessage.Message == null)
                 throw new NullReferenceException("QueueMessage.Message is null");
 
-            if (!(endpointMessage.Message is System.Messaging.Message))
+            if (!(transportMessage.Message is System.Messaging.Message))
                 throw new ArgumentException("QueueMessage.Message type should be System.Messaging.Message.");
 
-            var message = (System.Messaging.Message)endpointMessage.Message;
+            var message = (System.Messaging.Message)transportMessage.Message;
 
             Object messageObject;
             try
@@ -122,11 +122,11 @@ namespace Paralect.ServiceBus.Msmq
             if (messageObject == null)
                 throw new TransportMessageDeserializationException("MessageBody is null - cannot translate to TransportMessage");
 
-            if (!(messageObject is TransportMessage))
+            if (!(messageObject is ServiceBusMessage))
                 throw new TransportMessageDeserializationException(String.Format(
                     "Error when deserializing transport message. Object type is {0} but should be of type TranportMessage", messageObject.GetType().FullName));
 
-            return (TransportMessage) messageObject;
+            return (ServiceBusMessage) messageObject;
         }
 
         private Object ReadMessageBody(Message message)

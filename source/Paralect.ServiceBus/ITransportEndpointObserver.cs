@@ -2,27 +2,27 @@ using System;
 
 namespace Paralect.ServiceBus
 {
-    public interface IEndpointObserver : IDisposable
+    public interface ITransportEndpointObserver : IDisposable
     {
         /// <summary>
         /// Observer started
         /// </summary>
-        event Action<IEndpointObserver> ObserverStarted;
+        event Action<ITransportEndpointObserver> ObserverStarted;
 
         /// <summary>
         /// Observer stopped
         /// </summary>
-        event Action<IEndpointObserver> ObserverStopped;
+        event Action<ITransportEndpointObserver> ObserverStopped;
 
         /// <summary>
         /// Event handlers can be invoked in different threads.
         /// </summary>
-        event Action<EndpointMessage, IEndpointObserver> MessageReceived;
+        event Action<TransportMessage, ITransportEndpointObserver> MessageReceived;
 
         /// <summary>
         /// QueueProvider
         /// </summary>
-        IEndpointProvider Provider { get; }
+        ITransport Transport { get; }
 
         /// <summary>
         /// Start observing

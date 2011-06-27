@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Paralect.ServiceBus
 {
-    public class EndpointAddress
+    public class TransportEndpointAddress
     {
         public String Name { get; set; }
         public String ComputerName { get; set; }
@@ -14,7 +14,7 @@ namespace Paralect.ServiceBus
         /// Should be in the format:
         /// QueueName@ComputerName
         /// </summary>
-        public EndpointAddress(String path)
+        public TransportEndpointAddress(String path)
         {
             var parts = path.Split('@');
             Name = parts[0];
@@ -37,5 +37,10 @@ namespace Paralect.ServiceBus
         {
             return String.Format("{0}@{1}", Name, ComputerName);
         }
+    }
+
+    public interface IEndpointAddress
+    {
+        
     }
 }

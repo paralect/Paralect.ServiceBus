@@ -9,7 +9,7 @@ namespace Paralect.ServiceBus
     /// <summary>
     /// Default implementation of IBus 
     /// </summary>
-    public class ServiceBus : IBus
+    public class ServiceBus : IServiceBus
     {
         /// <summary>
         /// Configuration settings for ServiceBus
@@ -19,22 +19,22 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Endpoint Provider used to send and receive messages
         /// </summary>
-        private readonly IEndpointProvider _provider;
+        private readonly ITransport _provider;
 
         /// <summary>
         /// Input query address from which we are receiving messages
         /// </summary>
-        private readonly EndpointAddress _inputEndpointAddress;
+        private readonly TransportEndpointAddress _inputTransportEndpointAddress;
 
         /// <summary>
         /// Error queue address (we are sending to error queue messsages that wasn't handled correctly)
         /// </summary>
-        private readonly EndpointAddress _errorEndpointAddress;
+        private readonly TransportEndpointAddress _errorTransportEndpointAddress;
 
         /// <summary>
         /// Error endpoint (we are sending to error queue messsages that wasn't handled correctly)
         /// </summary>
-        private IEndpoint _errorEndpoint;
+        private ITransportEndpoint _errorTransportEndpoint;
 
         /// <summary>
         /// Last exception that was "produced" by this service bus
@@ -44,7 +44,7 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Observer of input queue
         /// </summary>
-        private IEndpointObserver _endpointObserver;
+        private ITransportEndpointObserver _transportEndpointObserver;
 
         /// <summary>
         /// Dispatcher of messages
@@ -78,17 +78,17 @@ namespace Paralect.ServiceBus
                 throw new ArgumentException("Input queue not configured. Use SetInputQueue() method.");
 
             _configuration = configuration;
-            _provider = configuration.EndpointProvider;
-            _inputEndpointAddress = configuration.InputQueue;
-            _errorEndpointAddress = configuration.ErrorQueue;
+            _provider = configuration.Transport;
+            _inputTransportEndpointAddress = configuration.InputQueue;
+            _errorTransportEndpointAddress = configuration.ErrorQueue;
             _endpointMapping = configuration.EndpointsMapping;
 
             // use container of ServiceBus, if not specified for dispatcher
             if (_configuration.DispatcherConfiguration.ServiceLocator == null)
                 _configuration.DispatcherConfiguration.ServiceLocator = configuration.ServiceLocator;
 
-            EndpointProviderRegistry.Register(_inputEndpointAddress, _provider);
-            EndpointProviderRegistry.Register(_errorEndpointAddress, _provider);
+            TransportRegistry.Register(_inputTransportEndpointAddress, _provider);
+            TransportRegistry.Register(_errorTransportEndpointAddress, _provider);
         }
 
         /// <summary>
@@ -99,8 +99,8 @@ namespace Paralect.ServiceBus
             // Registration of endpoints
             foreach (var endpoint in _endpointMapping.Endpoints)
             {
-                if (EndpointProviderRegistry.GetQueueProvider(endpoint.EndpointAddress) == null)
-                    EndpointProviderRegistry.Register(endpoint.EndpointAddress, endpoint.EndpointProvider ?? _provider);
+                if (TransportRegistry.GetQueueProvider(endpoint.Address) == null)
+                    TransportRegistry.Register(endpoint.Address, endpoint.Transport ?? _provider);
             }
 
             // Check existence of input and error endpoint and create them if needed
@@ -110,12 +110,12 @@ namespace Paralect.ServiceBus
             _dispatcher = new Dispatcher(_configuration.DispatcherConfiguration);
 
             // Open error queue
-            _errorEndpoint = _provider.OpenQueue(_errorEndpointAddress);
+            _errorTransportEndpoint = _provider.OpenEndpoint(_errorTransportEndpointAddress);
 
             // Create and configure observer of input queue
-            _endpointObserver = _provider.CreateObserver(_inputEndpointAddress);
-            _endpointObserver.MessageReceived += Observer_MessageReceived;
-            _endpointObserver.Start();
+            _transportEndpointObserver = _provider.CreateObserver(_inputTransportEndpointAddress);
+            _transportEndpointObserver.MessageReceived += EndpointObserverMessageReceived;
+            _transportEndpointObserver.Start();
 
             // Set servise bus state into Running state 
             _status = ServiceBusStatus.Running;
@@ -125,19 +125,19 @@ namespace Paralect.ServiceBus
         /// Handle messages that were received from input endpoint
         /// Method can be called from different threads.
         /// </summary>
-        private void Observer_MessageReceived(EndpointMessage endpointMessage, IEndpointObserver endpointObserver)
+        private void EndpointObserverMessageReceived(TransportMessage transportMessage, ITransportEndpointObserver transportEndpointObserver)
         {
             try
             {
                 // Translate to Transport message
-                var transportMessage = endpointObserver.Provider.TranslateToTransportMessage(endpointMessage);
+                var serviceBusMessage = transportEndpointObserver.Transport.TranslateToServiceBusMessage(transportMessage);
 
                 // Ignore transport messages without messages
-                if (transportMessage.Messages == null && transportMessage.Messages.Length < 1)
+                if (serviceBusMessage.Messages == null && serviceBusMessage.Messages.Length < 1)
                     return;
 
                 // Dispatch each message (synchronously)
-                foreach (var message in transportMessage.Messages)
+                foreach (var message in serviceBusMessage.Messages)
                 {
                     _dispatcher.Dispatch(message);
                 }
@@ -146,19 +146,19 @@ namespace Paralect.ServiceBus
             {
                 _lastException = dispatchingException;
                 _log.ErrorException("Dispatching exception. See logs for more details.", dispatchingException);
-                _errorEndpoint.Send(endpointMessage);
+                _errorTransportEndpoint.Send(transportMessage);
             }
             catch (HandlerException handlerException)
             {
                 _lastException = handlerException;
                 _log.ErrorException("Message handling failed.", handlerException);
-                _errorEndpoint.Send(endpointMessage);
+                _errorTransportEndpoint.Send(transportMessage);
             }
             catch (TransportMessageDeserializationException deserializationException)
             {
                 _lastException = deserializationException;
-                _log.ErrorException("Unable to deserialize message #" + endpointMessage.MessageId, deserializationException);
-                _errorEndpoint.Send(endpointMessage);
+                _log.ErrorException("Unable to deserialize message #" + transportMessage.MessageId, deserializationException);
+                _errorTransportEndpoint.Send(transportMessage);
             }
         }
 
@@ -168,32 +168,32 @@ namespace Paralect.ServiceBus
         private void PrepareQueues()
         {
             // Prepare input endpoint
-            String inputMutexName = String.Format("Paralect.ServiceBus.{0}.InputQueue", _inputEndpointAddress.GetFriendlyName());
-            if (!_provider.ExistsQueue(_inputEndpointAddress))
+            String inputMutexName = String.Format("Paralect.ServiceBus.{0}.InputQueue", _inputTransportEndpointAddress.GetFriendlyName());
+            if (!_provider.ExistsEndpoint(_inputTransportEndpointAddress))
             {
                 MutexFactory.LockByMutex(inputMutexName, () =>
                 {
-                    if (!_provider.ExistsQueue(_inputEndpointAddress))
-                        _provider.CreateQueue(_inputEndpointAddress);
+                    if (!_provider.ExistsEndpoint(_inputTransportEndpointAddress))
+                        _provider.CreateEndpoint(_inputTransportEndpointAddress);
                 });
             }
 
-            _provider.PrepareQueue(_inputEndpointAddress);
+            _provider.PrepareEndpoint(_inputTransportEndpointAddress);
 
 
             // Prepare error endpoint
-            String errorMutexName = String.Format("Paralect.ServiceBus.{0}.ErrorQueue", _inputEndpointAddress.GetFriendlyName());
-            if (!_provider.ExistsQueue(_errorEndpointAddress))
+            String errorMutexName = String.Format("Paralect.ServiceBus.{0}.ErrorQueue", _inputTransportEndpointAddress.GetFriendlyName());
+            if (!_provider.ExistsEndpoint(_errorTransportEndpointAddress))
             {
                 MutexFactory.LockByMutex(errorMutexName, () =>
                 {
-                    if (!_provider.ExistsQueue(_errorEndpointAddress))
-                        _provider.CreateQueue(_errorEndpointAddress);
+                    if (!_provider.ExistsEndpoint(_errorTransportEndpointAddress))
+                        _provider.CreateEndpoint(_errorTransportEndpointAddress);
 
                 });
             }
 
-            _provider.PrepareQueue(_errorEndpointAddress);
+            _provider.PrepareEndpoint(_errorTransportEndpointAddress);
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace Paralect.ServiceBus
         /// </summary>
         public void Wait()
         {
-            _endpointObserver.Wait();
+            _transportEndpointObserver.Wait();
             _status = ServiceBusStatus.Stopped;
         }
 
@@ -211,12 +211,12 @@ namespace Paralect.ServiceBus
         /// </summary>
         public void Dispose()
         {
-            if (_endpointObserver != null)
+            if (_transportEndpointObserver != null)
             {
-                _endpointObserver.MessageReceived -= Observer_MessageReceived;
+                _transportEndpointObserver.MessageReceived -= EndpointObserverMessageReceived;
 
                 if (_status != ServiceBusStatus.Stopped)
-                    _endpointObserver.Dispose();
+                    _transportEndpointObserver.Dispose();
             }
         }
 
@@ -230,8 +230,8 @@ namespace Paralect.ServiceBus
                 return;
 
             // Create transport message
-            TransportMessage transportMessage = new TransportMessage(messages);
-            transportMessage.SentFromQueueName = _inputEndpointAddress.GetFriendlyName();
+            ServiceBusMessage serviceBusMessage = new ServiceBusMessage(messages);
+            serviceBusMessage.SentFromQueueName = _inputTransportEndpointAddress.GetFriendlyName();
 
             // Get list of endpoints we need send message to
             var endpoints = _endpointMapping.GetEndpoints(messages[0].GetType());
@@ -239,12 +239,12 @@ namespace Paralect.ServiceBus
             foreach (var endpoint in endpoints)
             {
                 // Create EndpointMessage from TransportMessage
-                var provider = EndpointProviderRegistry.GetQueueProvider(endpoint.EndpointAddress);
-                EndpointMessage endpointMessage = provider.TranslateToQueueMessage(transportMessage);
+                var provider = TransportRegistry.GetQueueProvider(endpoint.Address);
+                TransportMessage transportMessage = provider.TranslateToTransportMessage(serviceBusMessage);
 
                 // Send message
-                var queue = provider.OpenQueue(endpoint.EndpointAddress);
-                queue.Send(endpointMessage);
+                var queue = provider.OpenEndpoint(endpoint.Address);
+                queue.Send(transportMessage);
             }
         }
 
@@ -255,9 +255,9 @@ namespace Paralect.ServiceBus
         /// <param name="messages"></param>
         public void SendLocal(params object[] messages)
         {
-            TransportMessage transportMessage = new TransportMessage(messages);
-            EndpointMessage endpointMessage = _provider.TranslateToQueueMessage(transportMessage);
-            _errorEndpoint.Send(endpointMessage);
+            ServiceBusMessage serviceBusMessage = new ServiceBusMessage(messages);
+            TransportMessage transportMessage = _provider.TranslateToTransportMessage(serviceBusMessage);
+            _errorTransportEndpoint.Send(transportMessage);
         }
 
         /// <summary>
@@ -279,7 +279,7 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Factory method. Create and run service bus
         /// </summary>
-        public static IBus Run(Func<ServiceBusConfiguration, ServiceBusConfiguration> configurationAction)
+        public static IServiceBus Run(Func<ServiceBusConfiguration, ServiceBusConfiguration> configurationAction)
         {
             var config = new ServiceBusConfiguration();
             configurationAction(config);
@@ -291,7 +291,7 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Factory method. Create service bus.
         /// </summary>
-        public static IBus Create(Func<ServiceBusConfiguration, ServiceBusConfiguration> configurationAction)
+        public static IServiceBus Create(Func<ServiceBusConfiguration, ServiceBusConfiguration> configurationAction)
         {
             var config = new ServiceBusConfiguration();
             configurationAction(config);

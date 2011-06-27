@@ -19,8 +19,8 @@ namespace Paralect.ServiceBus.Test.Tests
         [Test]
         public void SimpleTest()
         {
-            var inputQueueName1 = new EndpointAddress(Guid.NewGuid().ToString());
-            var inputQueueName2 = new EndpointAddress(Guid.NewGuid().ToString());
+            var inputQueueName1 = new TransportEndpointAddress(Guid.NewGuid().ToString());
+            var inputQueueName2 = new TransportEndpointAddress(Guid.NewGuid().ToString());
 
             ServiceBusConfiguration config1 = null;
             ServiceBusConfiguration config2 = null;
@@ -80,13 +80,13 @@ namespace Paralect.ServiceBus.Test.Tests
 
             finally
             {
-                var queueProvider1 = EndpointProviderRegistry.GetQueueProvider(inputQueueName1);
-                queueProvider1.DeleteQueue(config1.InputQueue);
-                queueProvider1.DeleteQueue(config1.ErrorQueue);
+                var queueProvider1 = TransportRegistry.GetQueueProvider(inputQueueName1);
+                queueProvider1.DeleteEndpoint(config1.InputQueue);
+                queueProvider1.DeleteEndpoint(config1.ErrorQueue);
 
-                var queueProvider2 = EndpointProviderRegistry.GetQueueProvider(inputQueueName2);
-                queueProvider2.DeleteQueue(config2.InputQueue);
-                queueProvider2.DeleteQueue(config2.ErrorQueue);
+                var queueProvider2 = TransportRegistry.GetQueueProvider(inputQueueName2);
+                queueProvider2.DeleteEndpoint(config2.InputQueue);
+                queueProvider2.DeleteEndpoint(config2.ErrorQueue);
             }
         }
     }

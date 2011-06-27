@@ -4,24 +4,24 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.InMemory
 {
-    public class InMemoryEndpoint : IEndpoint
+    public class InMemoryTransportEndpoint : ITransportEndpoint
     {
-        private BlockingQueue<EndpointMessage> _messages = new BlockingQueue<EndpointMessage>();
+        private BlockingQueue<TransportMessage> _messages = new BlockingQueue<TransportMessage>();
 
         /// <summary>
         /// Logger instance (In future we should  go away from NLog dependency)
         /// </summary>
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
-        private readonly EndpointAddress _name;
-        private readonly IEndpointProvider _provider;
+        private readonly TransportEndpointAddress _name;
+        private readonly ITransport _transport;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public InMemoryEndpoint(EndpointAddress name, IEndpointProvider provider)
+        public InMemoryTransportEndpoint(TransportEndpointAddress name, ITransport transport)
         {
             _name = name;
-            _provider = provider;
+            _transport = transport;
         }
 
         public void Dispose()
@@ -29,14 +29,14 @@ namespace Paralect.ServiceBus.InMemory
             
         }
 
-        public EndpointAddress Name
+        public TransportEndpointAddress Name
         {
             get { return _name;  }
         }
 
-        public IEndpointProvider Provider
+        public ITransport Transport
         {
-            get { return _provider;  }
+            get { return _transport;  }
         }
 
         public void Purge()
@@ -44,14 +44,14 @@ namespace Paralect.ServiceBus.InMemory
             _messages.Clear();
         }
 
-        public void Send(EndpointMessage message)
+        public void Send(TransportMessage message)
         {
             _messages.Enqueue(message);
         }
 
-        public EndpointMessage Receive(TimeSpan timeout)
+        public TransportMessage Receive(TimeSpan timeout)
         {
-            EndpointMessage message;
+            TransportMessage message;
             var result = _messages.TryDequeue(out message, (int) timeout.TotalMilliseconds);
 
             if (!result)

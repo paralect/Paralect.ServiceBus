@@ -2,46 +2,46 @@ using System;
 
 namespace Paralect.ServiceBus
 {
-    public interface IEndpointProvider
+    public interface ITransport
     {
         /// <summary>
         /// Check existence of queue
         /// </summary>
-        Boolean ExistsQueue(EndpointAddress endpointAddress);
+        Boolean ExistsEndpoint(TransportEndpointAddress transportEndpointAddress);
 
         /// <summary>
         /// Delete particular queue
         /// </summary>
-        void DeleteQueue(EndpointAddress endpointAddress);
+        void DeleteEndpoint(TransportEndpointAddress transportEndpointAddress);
 
         /// <summary>
         /// Create queue
         /// </summary>
-        void CreateQueue(EndpointAddress endpointAddress);
+        void CreateEndpoint(TransportEndpointAddress transportEndpointAddress);
 
         /// <summary>
         /// Prepare local queue
         /// </summary>
-        void PrepareQueue(EndpointAddress endpointAddress);
+        void PrepareEndpoint(TransportEndpointAddress transportEndpointAddress);
 
         /// <summary>
         /// Open queue
         /// </summary>
-        IEndpoint OpenQueue(EndpointAddress endpointAddress);
+        ITransportEndpoint OpenEndpoint(TransportEndpointAddress transportEndpointAddress);
 
         /// <summary>
         /// Create new observer
         /// </summary>
-        IEndpointObserver CreateObserver(EndpointAddress endpointAddress);
+        ITransportEndpointObserver CreateObserver(TransportEndpointAddress transportEndpointAddress);
 
         /// <summary>
         /// Translate from transport message to queue message
         /// </summary>
-        EndpointMessage TranslateToQueueMessage(TransportMessage transportMessage);
+        TransportMessage TranslateToTransportMessage(ServiceBusMessage serviceBusMessage);
 
         /// <summary>
         /// Translate from queue message to transport message
         /// </summary>
-        TransportMessage TranslateToTransportMessage(EndpointMessage endpointMessage);
+        ServiceBusMessage TranslateToServiceBusMessage(TransportMessage transportMessage);
     }
 }

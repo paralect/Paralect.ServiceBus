@@ -9,17 +9,17 @@ namespace Paralect.ServiceBus
     /// <summary>
     /// Observer that use one thread 
     /// </summary>
-    public class SingleThreadEndpointObserver : IEndpointObserver
+    public class SingleThreadTransportEndpointObserver : ITransportEndpointObserver
     {
-        private readonly IEndpointProvider _provider;
-        private readonly EndpointAddress _endpointAddress;
+        private readonly ITransport _transport;
+        private readonly TransportEndpointAddress _transportEndpointAddress;
         private readonly string _threadName;
         private Thread _observerThread;
         private Boolean _continue;
 
-        public event Action<IEndpointObserver> ObserverStarted;
-        public event Action<IEndpointObserver> ObserverStopped;
-        public event Action<EndpointMessage, IEndpointObserver> MessageReceived;
+        public event Action<ITransportEndpointObserver> ObserverStarted;
+        public event Action<ITransportEndpointObserver> ObserverStopped;
+        public event Action<TransportMessage, ITransportEndpointObserver> MessageReceived;
 
         private readonly String _shutdownMessageId = Guid.NewGuid().ToString();
 
@@ -28,18 +28,18 @@ namespace Paralect.ServiceBus
         /// </summary>
         private static NLog.Logger _log = NLog.LogManager.GetCurrentClassLogger();
 
-        public IEndpointProvider Provider
+        public ITransport Transport
         {
-            get { return _provider; }
+            get { return _transport; }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
-        public SingleThreadEndpointObserver(IEndpointProvider endpointProvider, EndpointAddress endpointAddress, String threadName = null)
+        public SingleThreadTransportEndpointObserver(ITransport transport, TransportEndpointAddress transportEndpointAddress, String threadName = null)
         {
-            _provider = endpointProvider;
-            _endpointAddress = endpointAddress;
+            _transport = transport;
+            _transportEndpointAddress = transportEndpointAddress;
             _threadName = threadName;
         }
 
@@ -48,7 +48,7 @@ namespace Paralect.ServiceBus
             _continue = true;
             _observerThread = new Thread(QueueObserverThread)
             {
-                Name = _threadName ?? String.Format("Transport Observer thread for queue {0}", _endpointAddress.GetFriendlyName()),
+                Name = _threadName ?? String.Format("Transport Observer thread for queue {0}", _transportEndpointAddress.GetFriendlyName()),
                 IsBackground = true,
             };
             _observerThread.Start();            
@@ -57,7 +57,7 @@ namespace Paralect.ServiceBus
         protected void QueueObserverThread(object state)
         {
             // Only one instance of ServiceBus should listen to a particular queue
-            String mutexName = String.Format("Paralect.ServiceBus.{0}", _endpointAddress.GetFriendlyName());
+            String mutexName = String.Format("Paralect.ServiceBus.{0}", _transportEndpointAddress.GetFriendlyName());
 
             MutexFactory.LockByMutex(mutexName, () =>
             {
@@ -65,7 +65,7 @@ namespace Paralect.ServiceBus
                 if (started != null)
                     started(this);
 
-                _log.Info("Paralect Service [{0}] bus started and listen to the {1} queue...", "_configuration.Name", _endpointAddress.GetFriendlyName());
+                _log.Info("Paralect Service [{0}] bus started and listen to the {1} queue...", "_configuration.Name", _transportEndpointAddress.GetFriendlyName());
                 Observe();
             });
         }
@@ -74,17 +74,17 @@ namespace Paralect.ServiceBus
         {
             try
             {
-                var queue = _provider.OpenQueue(_endpointAddress);
+                var queue = _transport.OpenEndpoint(_transportEndpointAddress);
 
                 while (_continue)
                 {
                     try
                     {
-                        EndpointMessage endpointMessage = queue.Receive(TimeSpan.FromDays(10));
+                        TransportMessage transportMessage = queue.Receive(TimeSpan.FromDays(10));
                         
-                        if (endpointMessage.MessageType == EndpointMessageType.Shutdown)
+                        if (transportMessage.MessageType == TransportMessageType.Shutdown)
                         {
-                            if (endpointMessage.MessageId == _shutdownMessageId)
+                            if (transportMessage.MessageId == _shutdownMessageId)
                                 break;
 
                             continue;
@@ -92,7 +92,7 @@ namespace Paralect.ServiceBus
 
                         var received = MessageReceived;
                         if (received != null)
-                            received(endpointMessage, this);
+                            received(transportMessage, this);
                         
                     }
                     catch (TransportTimeoutException)
@@ -130,9 +130,9 @@ namespace Paralect.ServiceBus
 
         private void SendStopMessages()
         {
-            _provider
-                .OpenQueue(_endpointAddress)
-                .Send(new EndpointMessage(null, _shutdownMessageId, "Shutdown", EndpointMessageType.Shutdown));
+            _transport
+                .OpenEndpoint(_transportEndpointAddress)
+                .Send(new TransportMessage(null, _shutdownMessageId, "Shutdown", TransportMessageType.Shutdown));
         }
     }
 }

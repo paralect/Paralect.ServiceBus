@@ -2,17 +2,17 @@ using System;
 
 namespace Paralect.ServiceBus
 {
-    public interface IEndpoint : IDisposable
+    public interface ITransportEndpoint : IDisposable
     {
         /// <summary>
         /// Queue name
         /// </summary>
-        EndpointAddress Name { get; }
+        TransportEndpointAddress Name { get; }
 
         /// <summary>
         /// Queue manager which create this queue
         /// </summary>
-        IEndpointProvider Provider { get; }
+        ITransport Transport { get; }
 
         /// <summary>
         /// Delete all messages from this queue
@@ -22,11 +22,11 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Send message to this queue
         /// </summary>
-        void Send(EndpointMessage message);
+        void Send(TransportMessage message);
 
         /// <summary>
         /// Blocking call. 
         /// </summary>
-        EndpointMessage Receive(TimeSpan timeout);
+        TransportMessage Receive(TimeSpan timeout);
     }
 }

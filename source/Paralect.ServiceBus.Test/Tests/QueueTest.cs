@@ -23,20 +23,20 @@ namespace Paralect.ServiceBus.Test.Tests
         {
             Helper.CreateAndOpenQueue(queue =>
             {
-                var transportMessage = new TransportMessage(new object[]
+                var transportMessage = new ServiceBusMessage(new object[]
                 {
                     new Message1("MessageName", 2011)
                 });
 
-                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Transport.TranslateToTransportMessage(transportMessage));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Transport.TranslateToServiceBusMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             },
-            new IEndpointProvider[]
+            new ITransport[]
             {
-                new MsmqEndpointProvider(),
-                new InMemoryEndpointProvider()
+                new MsmqTransport(),
+                new InMemoryTransport()
             });
         }      
   
@@ -45,7 +45,7 @@ namespace Paralect.ServiceBus.Test.Tests
         {
             Helper.CreateAndOpenQueue(queue =>
             {
-                var transportMessage = new TransportMessage(new object[]
+                var transportMessage = new ServiceBusMessage(new object[]
                 {
                     new Message1("MessageName1", 2011),
                     new Message2("MessageName2", 2012),
@@ -54,15 +54,15 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message2("MessageName5", 2015),
                 });
 
-                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Transport.TranslateToTransportMessage(transportMessage));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Transport.TranslateToServiceBusMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             },
-            new IEndpointProvider[]
+            new ITransport[]
             {
-                new MsmqEndpointProvider(),
-                new InMemoryEndpointProvider()
+                new MsmqTransport(),
+                new InMemoryTransport()
             });
         }  
 
@@ -71,7 +71,7 @@ namespace Paralect.ServiceBus.Test.Tests
         {
             Helper.CreateAndOpenQueue(queue =>
             {
-                var transportMessage = new TransportMessage(new object[]
+                var transportMessage = new ServiceBusMessage(new object[]
                 {
                     new Message1("MessageName1", 2011),
                     new Message2("MessageName2", 2012),
@@ -80,19 +80,19 @@ namespace Paralect.ServiceBus.Test.Tests
                     new Message2("MessageName5", 2015),
                 });
 
-                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
-                queue.Send(queue.Provider.TranslateToQueueMessage(transportMessage));
+                queue.Send(queue.Transport.TranslateToTransportMessage(transportMessage));
+                queue.Send(queue.Transport.TranslateToTransportMessage(transportMessage));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Transport.TranslateToServiceBusMessage(queue.Receive(TimeSpan.FromSeconds(5))));
 
                 Helper.AssertTransportMessage(transportMessage,
-                    queue.Provider.TranslateToTransportMessage(queue.Receive(TimeSpan.FromSeconds(5))));
+                    queue.Transport.TranslateToServiceBusMessage(queue.Receive(TimeSpan.FromSeconds(5))));
             },
-            new IEndpointProvider[]
+            new ITransport[]
             {
-                new MsmqEndpointProvider(),
-                new InMemoryEndpointProvider()
+                new MsmqTransport(),
+                new InMemoryTransport()
             });
         }
     }

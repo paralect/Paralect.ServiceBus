@@ -19,18 +19,18 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Add endpoint mapped by type full name
         /// </summary>
-        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, String typeWildcard, String queueName, IEndpointProvider endpointProvider = null)
+        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, String typeWildcard, String queueName, ITransport transport = null)
         {
-            configuration.EndpointsMapping.Map(type => type.FullName.StartsWith(typeWildcard), queueName, endpointProvider);
+            configuration.EndpointsMapping.Map(type => type.FullName.StartsWith(typeWildcard), queueName, transport);
             return configuration;
         }
 
         /// <summary>
         /// Add endpoint, mapped by function
         /// </summary>
-        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, Func<Type, Boolean> typeChecker, String queueName, IEndpointProvider endpointProvider = null)
+        public static ServiceBusConfiguration AddEndpoint(this ServiceBusConfiguration configuration, Func<Type, Boolean> typeChecker, String queueName, ITransport transport = null)
         {
-            configuration.EndpointsMapping.Map(typeChecker, queueName, endpointProvider);
+            configuration.EndpointsMapping.Map(typeChecker, queueName, transport);
             return configuration;
         }
 
@@ -39,13 +39,13 @@ namespace Paralect.ServiceBus
         /// </summary>
         public static ServiceBusConfiguration SetInputQueue(this ServiceBusConfiguration configuration, String queueName)
         {
-            configuration.InputQueue = new EndpointAddress(queueName);
+            configuration.InputQueue = new TransportEndpointAddress(queueName);
 
             // If error queue is not defined, set error queue name based on input queue name:
             if (configuration.ErrorQueue == null)
             {
                 var errorQueueName = String.Format("{0}.Errors@{1}", configuration.InputQueue.Name, configuration.InputQueue.ComputerName);
-                configuration.ErrorQueue = new EndpointAddress(errorQueueName);
+                configuration.ErrorQueue = new TransportEndpointAddress(errorQueueName);
             }
 
             return configuration;
@@ -56,7 +56,7 @@ namespace Paralect.ServiceBus
         /// </summary>
         public static ServiceBusConfiguration SetErrorQueue(this ServiceBusConfiguration configuration, String queueName)
         {
-            configuration.ErrorQueue = new EndpointAddress(queueName);
+            configuration.ErrorQueue = new TransportEndpointAddress(queueName);
             return configuration;
         }
 
@@ -87,7 +87,7 @@ namespace Paralect.ServiceBus
         /// </summary>
         public static ServiceBusConfiguration MsmqTransport(this ServiceBusConfiguration configuration)
         {
-            configuration.EndpointProvider = new Msmq.MsmqEndpointProvider();
+            configuration.Transport = new Msmq.MsmqTransport();
             return configuration;
         }
 
@@ -96,7 +96,7 @@ namespace Paralect.ServiceBus
         /// </summary>
         public static ServiceBusConfiguration MemoryTransport(this ServiceBusConfiguration configuration)
         {
-            configuration.EndpointProvider = new InMemory.InMemoryEndpointProvider();
+            configuration.Transport = new InMemory.InMemoryTransport();
             return configuration;
         }
 
@@ -105,7 +105,7 @@ namespace Paralect.ServiceBus
         /// </summary>
         public static ServiceBusConfiguration MemorySynchronousTransport(this ServiceBusConfiguration configuration)
         {
-            configuration.EndpointProvider = new InMemory.InMemorySynchronousEndpointProvider();
+            configuration.Transport = new InMemory.InMemorySynchronousTransport();
             return configuration;
         }        
         

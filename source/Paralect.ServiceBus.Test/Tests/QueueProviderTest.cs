@@ -21,7 +21,7 @@ namespace Paralect.ServiceBus.Test.Tests
         {
             Helper.CreateQueue(queue =>
             {
-                var exists = queue.Provider.ExistsQueue(queue.Name);
+                var exists = queue.Transport.ExistsEndpoint(queue.Name);
                 Assert.AreEqual(exists, true);
             });
         }
@@ -29,9 +29,9 @@ namespace Paralect.ServiceBus.Test.Tests
         [Test]
         public void NotExistCheck()
         {
-            var name = new EndpointAddress(Guid.NewGuid().ToString());
-            var manager = new MsmqEndpointProvider();
-            var exists = manager.ExistsQueue(name);
+            var name = new TransportEndpointAddress(Guid.NewGuid().ToString());
+            var manager = new MsmqTransport();
+            var exists = manager.ExistsEndpoint(name);
             Assert.AreEqual(exists, false);
         }
 

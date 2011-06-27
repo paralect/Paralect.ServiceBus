@@ -26,17 +26,17 @@ namespace Paralect.ServiceBus
         /// <summary>
         /// Input endpoint
         /// </summary>
-        public EndpointAddress InputQueue { get; set; }
+        public TransportEndpointAddress InputQueue { get; set; }
 
         /// <summary>
         /// Error endpoint
         /// </summary>
-        public EndpointAddress ErrorQueue { get; set; }
+        public TransportEndpointAddress ErrorQueue { get; set; }
 
         /// <summary>
         /// Endpoint provider, used as a single access point to transport
         /// </summary>
-        public IEndpointProvider EndpointProvider { get; set; }
+        public ITransport Transport { get; set; }
 
         /// <summary>
         /// Mapping between type -> endpoint
