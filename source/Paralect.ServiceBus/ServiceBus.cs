@@ -72,7 +72,7 @@ namespace Paralect.ServiceBus
         public ServiceBus(ServiceBusConfiguration configuration)
         {
             if (configuration.ServiceLocator == null)
-                throw new ArgumentException("Unity Container is not registered. User SetUnityContainer() method.");
+                throw new ArgumentException("Service Locator doesn't registered. Use SetServiceLocator() method.");
 
             if (configuration.InputQueue == null)
                 throw new ArgumentException("Input queue not configured. Use SetInputQueue() method.");

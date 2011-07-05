@@ -4,7 +4,7 @@ using Paralect.ServiceBus.Exceptions;
 
 namespace Paralect.ServiceBus.Dispatching
 {
-    public class Dispatcher
+    public class Dispatcher : IDispatcher
     {
         private readonly IServiceLocator _serviceLocator;
         private readonly DispatcherHandlerRegistry _registry;
