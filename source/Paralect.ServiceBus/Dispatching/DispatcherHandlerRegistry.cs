@@ -66,7 +66,7 @@ namespace Paralect.ServiceBus.Dispatching
 
             var assemblySubscriptions = assembly
                 .GetTypes()
-                    .Where(t => BelongToNamespaces(t, namespaces))
+                .Where(t => BelongToNamespaces(t, namespaces))
                 .SelectMany(t => t.GetInterfaces()
                                     .Where(i => i.IsGenericType
                                     && (i.GetGenericTypeDefinition() == searchTarget)
@@ -82,7 +82,12 @@ namespace Paralect.ServiceBus.Dispatching
                 if (!_subscription.ContainsKey(key))
                     _subscription[key] = new List<Type>();
 
-                _subscription[key].AddRange(types);
+                foreach (var type in types)
+                {
+                    // Skip handler already registered for that message type, skip it!
+                    if (!_subscription[key].Contains(type))
+                        _subscription[key].Add(type);
+                }
             }
         }
 
