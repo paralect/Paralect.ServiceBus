@@ -16,7 +16,7 @@ namespace Paralect.ServiceBus.Dispatching
         }
 
         /// <summary>
-        /// Message type -> Handler type
+        /// Message type -> List of handlers type
         /// </summary>
         private Dictionary<Type, List<Type>> _subscription = new Dictionary<Type, List<Type>>();
 
@@ -42,24 +42,8 @@ namespace Paralect.ServiceBus.Dispatching
         }
 
         /// <summary>
-        /// 
+        /// Register all handlers in assembly (you can register handlers that optionally belongs to specified namespaces)
         /// </summary>
- /*       public void RegisterAssemblies(Assembly[] assemblies, String[] namespaces)
-        {
-            var searchTarget = _markerInterface;
-
-            var dict = assemblies.SelectMany(a => a.GetTypes().Where(t => BelongToNamespaces(t, namespaces)))
-                .SelectMany(t => t.GetInterfaces()
-                                    .Where(i => i.IsGenericType
-                                    && (i.GetGenericTypeDefinition() == searchTarget)
-                                    && !i.ContainsGenericParameters),
-                            (t, i) => new { Key = i.GetGenericArguments()[0], Value = t })
-                .GroupBy(x => x.Key, x => x.Value)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            _subscription = dict; 
-        }*/
-
         public void Register(Assembly assembly, String[] namespaces)
         {
             var searchTarget = _markerInterface;
@@ -89,6 +73,41 @@ namespace Paralect.ServiceBus.Dispatching
                         _subscription[key].Add(type);
                 }
             }
+        }
+
+        public void InsureOrderOfHandlers(List<Type> order)
+        {
+            if (order.Count <= 1)
+                return;
+
+            foreach (var type in _subscription.Keys)
+            {
+                var handlerTypes = _subscription[type];
+                SortInPlace(handlerTypes, order);
+            }
+        }
+
+        public void SortInPlace(List<Type> list, List<Type> orders)
+        {
+            if (orders.Count <= 1)
+                return;
+
+            list.Sort((type1, type2) =>
+            {
+                var first = orders.IndexOf(type1);
+                var second = orders.IndexOf(type2);
+
+                if (first == -1 && second == -1)
+                    return 0;
+
+                if (first == -1 && second != -1)
+                    return 1;
+
+                if (first != -1 && second == -1)
+                    return -1;
+
+                return (first < second) ? -1 : 1;
+            });
         }
 
         public void AddInterceptor(Type type)

@@ -24,6 +24,9 @@ namespace Paralect.ServiceBus.Dispatching
             _serviceLocator = configuration.ServiceLocator;
             _registry = configuration.DispatcherHandlerRegistry;
             _maxRetries = configuration.MaxRetries;
+
+            // order handlers 
+            _registry.InsureOrderOfHandlers(configuration.Order);
         }
 
         /// <summary>

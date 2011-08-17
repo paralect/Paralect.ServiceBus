@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ServiceLocation;
 
@@ -38,6 +39,12 @@ namespace Paralect.ServiceBus.Dispatching
         public static DispatcherConfiguration SetHandlerMarkerInterface(this DispatcherConfiguration configuration, Type markerInterface)
         {
             configuration.MessageHandlerMarkerInterface = markerInterface;
+            return configuration;
+        }
+
+        public static DispatcherConfiguration SetOrder(this DispatcherConfiguration configuration, params Type[] types)
+        {
+            configuration.Order = types.ToList();
             return configuration;
         }
     }
