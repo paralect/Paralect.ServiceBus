@@ -6,8 +6,19 @@ namespace Paralect.ServiceBus.Dispatching
 {
     public class Dispatcher : IDispatcher
     {
+        /// <summary>
+        /// Service Locator that is used to create handlers
+        /// </summary>
         private readonly IServiceLocator _serviceLocator;
+
+        /// <summary>
+        /// Registry of all registered handlers
+        /// </summary>
         private readonly DispatcherHandlerRegistry _registry;
+
+        /// <summary>
+        /// Number of retries in case exception was logged
+        /// </summary>
         private readonly int _maxRetries;
 
         /// <summary>
@@ -23,7 +34,7 @@ namespace Paralect.ServiceBus.Dispatching
 
             _serviceLocator = configuration.ServiceLocator;
             _registry = configuration.DispatcherHandlerRegistry;
-            _maxRetries = configuration.MaxRetries;
+            _maxRetries = configuration.NumberOfRetries;
 
             // order handlers 
             _registry.InsureOrderOfHandlers(configuration.Order);

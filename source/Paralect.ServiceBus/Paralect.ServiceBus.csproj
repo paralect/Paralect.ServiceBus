@@ -34,6 +34,10 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\libs\Microsoft.Practices\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\libs\Microsoft.Practices\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\..\libs\MongoDriver\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -57,6 +61,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dispatching2\DispatcherConfigurationAssemblyExtensions.cs" />
+    <Compile Include="Dispatching2\DelegateHandler.cs" />
+    <Compile Include="Dispatching2\Dispatcher.cs" />
+    <Compile Include="Dispatching2\DispatcherConfiguration.cs" />
+    <Compile Include="Dispatching2\DispatcherConfigurationDelegateExtensions.cs" />
+    <Compile Include="Dispatching2\DispatcherConfigurationExtensions.cs" />
+    <Compile Include="Dispatching2\DispatchMode.cs" />
+    <Compile Include="Dispatching2\HandlerRegistry.cs" />
+    <Compile Include="Dispatching2\HandlerRegistryBuilder.cs" />
+    <Compile Include="Dispatching2\IDispatcher.cs" />
+    <Compile Include="Dispatching2\IHandler.cs" />
+    <Compile Include="Dispatching2\IHandlerRegistry.cs" />
+    <Compile Include="Dispatching2\IHandlerRegistryBuilder.cs" />
+    <Compile Include="Dispatching2\ObjectHandler.cs" />
     <Compile Include="Dispatching\DispatcherConfiguration.cs" />
     <Compile Include="Dispatching\DispatcherConfigurationExtensions.cs" />
     <Compile Include="Dispatching\IDispatcher.cs" />

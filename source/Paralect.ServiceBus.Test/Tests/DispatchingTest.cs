@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Paralect.ServiceBus.Dispatching;

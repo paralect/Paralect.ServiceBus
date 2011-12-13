@@ -65,12 +65,17 @@
     <Compile Include="Interceptors\SecondInterceptor.cs" />
     <Compile Include="Messages\Message1.cs" />
     <Compile Include="Messages\Message2.cs" />
+    <Compile Include="Messages\Message3.cs" />
     <Compile Include="Messages\SimpleMessage1.cs" />
     <Compile Include="Messages\SimpleMessage2.cs" />
     <Compile Include="Messages\SimpleMessage3.cs" />
     <Compile Include="ObjectComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\Dispatcher2\DelegateHandlersTest.cs" />
+    <Compile Include="Tests\Dispatcher2\Dispatcher2Test.cs" />
     <Compile Include="Tests\DispatchingTest.cs" />
+    <Compile Include="Tests\Integration\DispatcherTests.cs" />
+    <Compile Include="Tests\Integration\MultipleSubscriptionsTest.cs" />
     <Compile Include="Tests\InterceptorsTest.cs" />
     <Compile Include="Tests\QueueProviderTest.cs" />
     <Compile Include="Tests\QueueTest.cs" />

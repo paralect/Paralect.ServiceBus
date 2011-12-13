@@ -15,7 +15,7 @@ namespace Paralect.ServiceBus.Dispatching
 
         public static DispatcherConfiguration SetMaxRetries(this DispatcherConfiguration configuration, Int32 maxRetries)
         {
-            configuration.MaxRetries = maxRetries;
+            configuration.NumberOfRetries = maxRetries;
             return configuration;
         }
 
