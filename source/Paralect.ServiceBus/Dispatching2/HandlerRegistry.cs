@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Paralect.ServiceBus.Dispatching2
@@ -8,12 +9,12 @@ namespace Paralect.ServiceBus.Dispatching2
         /// <summary>
         /// Handlers lookup dictionary. Handlers already in the order.
         /// </summary>
-        private readonly Dictionary<Type, IHandler[]> _handlers;
+        private readonly List<IHandler> _handlers;
 
         /// <summary>
         /// Creates HandlerRegistry with specified lookup dictionary
         /// </summary>
-        public HandlerRegistry(Dictionary<Type, IHandler[]> handlers)
+        public HandlerRegistry(List<IHandler> handlers)
         {
             _handlers = handlers;
         }
@@ -25,11 +26,29 @@ namespace Paralect.ServiceBus.Dispatching2
         /// </summary>
         public IHandler[] GetHandlers(Type messageType)
         {
-            IHandler[] handlers = null;
-            if (!_handlers.TryGetValue(messageType, out handlers))
-                return new IHandler[]{};
+            var handlers = new List<IHandler>();
 
-            return handlers;
+            foreach (var handler in _handlers)
+            {
+                if (IsMatch(messageType, handler.Subscriptions))
+                    handlers.Add(handler);
+            }
+
+            return handlers.ToArray();
+        }
+
+        public bool IsMatch(Type messageType, IEnumerable<Type> handlerSubscriptions)
+        {
+            foreach (Type handlerSubscription in handlerSubscriptions)
+            {
+                if (messageType == handlerSubscription)
+                    return true;
+
+                if (handlerSubscription.IsAssignableFrom(messageType))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

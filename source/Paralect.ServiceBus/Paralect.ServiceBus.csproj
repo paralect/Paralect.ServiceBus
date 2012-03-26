@@ -67,6 +67,7 @@
     <Compile Include="Dispatching2\DispatcherConfiguration.cs" />
     <Compile Include="Dispatching2\DispatcherConfigurationDelegateExtensions.cs" />
     <Compile Include="Dispatching2\DispatcherConfigurationExtensions.cs" />
+    <Compile Include="Dispatching2\DispatcherContext.cs" />
     <Compile Include="Dispatching2\DispatchMode.cs" />
     <Compile Include="Dispatching2\HandlerRegistry.cs" />
     <Compile Include="Dispatching2\HandlerRegistryBuilder.cs" />

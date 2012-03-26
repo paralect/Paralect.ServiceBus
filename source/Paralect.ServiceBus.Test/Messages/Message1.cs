@@ -2,7 +2,17 @@ using System;
 
 namespace Paralect.ServiceBus.Test.Messages
 {
-    public class Message1
+    public interface ISuperBaseMessage
+    {
+        String Name { get; set; }
+    }
+
+    public interface IBaseMessage : ISuperBaseMessage
+    {
+
+    }
+
+    public class Message1 : IBaseMessage
     {
         public String Name { get; set; }
         public Int32 Year { get; set; }

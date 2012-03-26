@@ -28,7 +28,7 @@ namespace Paralect.ServiceBus.Dispatching2
         public Dispatcher(DispatcherConfiguration configuration)
         {
             if (configuration.ServiceLocator == null)
-                throw new ArgumentException("Unity Container is not registered for distributor.");
+                throw new ArgumentException("Service Locator is not registered for distributor.");
 
             _registry = configuration.Builder.BuildHandlerRegistry();
             _serviceLocator = configuration.ServiceLocator;

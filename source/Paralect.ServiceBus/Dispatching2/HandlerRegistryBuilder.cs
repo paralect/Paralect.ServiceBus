@@ -23,8 +23,6 @@ namespace Paralect.ServiceBus.Dispatching2
                 throw new Exception(String.Format("Handler {0} already registered.", handler.Name));
 
             _handlers.Add(handler, null);
-
-
         }
 
         /// <summary>
@@ -43,7 +41,8 @@ namespace Paralect.ServiceBus.Dispatching2
         /// </summary>
         public IHandlerRegistry BuildHandlerRegistry()
         {
-            Dictionary<Type, List<IHandler>> memory = new Dictionary<Type, List<IHandler>>();
+            /*
+            OrderedDictionary memory = new OrderedDictionary(100);
 
             foreach(DictionaryEntry entry in _handlers)
             {
@@ -51,8 +50,10 @@ namespace Paralect.ServiceBus.Dispatching2
 
                 foreach (var type in handler.Subscriptions)
                 {
-                    List<IHandler> memoryHandlers = null;
-                    if (!memory.TryGetValue(type, out memoryHandlers))
+                    List<IHandler> memoryHandlers = memory[type] as List<IHandler>;
+
+                    // If the specified key is not found OrderedDictionary returns null
+                    if (memoryHandlers == null)
                     {
                         memoryHandlers = new List<IHandler>();
                         memory[type] = memoryHandlers;
@@ -63,9 +64,18 @@ namespace Paralect.ServiceBus.Dispatching2
             }
 
             // Convert to dictionary of arrays
-            var result = memory.ToDictionary(p => p.Key, p => p.Value.ToArray());
+            var result = memory.ToDictionary(p => p.Key, p => p.Value.ToArray());*/
 
-            return new HandlerRegistry(result);
+
+            List<IHandler> handlers = new List<IHandler>(_handlers.Count);
+
+            foreach (DictionaryEntry entry in _handlers)
+            {
+                IHandler handler = (IHandler) entry.Key;
+                handlers.Add(handler);
+            }
+
+            return new HandlerRegistry(handlers);
         }
     }
 }
