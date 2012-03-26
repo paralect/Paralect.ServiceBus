@@ -38,12 +38,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\libs\Microsoft.Practices\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
-    <Reference Include="MongoDB.Bson">
-      <HintPath>..\..\libs\MongoDriver\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver">
-      <HintPath>..\..\libs\MongoDriver\MongoDB.Driver.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\libs\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -61,21 +55,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dispatching2\DispatcherConfigurationAssemblyExtensions.cs" />
-    <Compile Include="Dispatching2\DelegateHandler.cs" />
-    <Compile Include="Dispatching2\Dispatcher.cs" />
-    <Compile Include="Dispatching2\DispatcherConfiguration.cs" />
-    <Compile Include="Dispatching2\DispatcherConfigurationDelegateExtensions.cs" />
-    <Compile Include="Dispatching2\DispatcherConfigurationExtensions.cs" />
-    <Compile Include="Dispatching2\DispatcherContext.cs" />
-    <Compile Include="Dispatching2\DispatchMode.cs" />
-    <Compile Include="Dispatching2\HandlerRegistry.cs" />
-    <Compile Include="Dispatching2\HandlerRegistryBuilder.cs" />
-    <Compile Include="Dispatching2\IDispatcher.cs" />
-    <Compile Include="Dispatching2\IHandler.cs" />
-    <Compile Include="Dispatching2\IHandlerRegistry.cs" />
-    <Compile Include="Dispatching2\IHandlerRegistryBuilder.cs" />
-    <Compile Include="Dispatching2\ObjectHandler.cs" />
+    <Compile Include="Temp\Dispatching2\DispatcherConfigurationAssemblyExtensions.cs" />
+    <Compile Include="Temp\Dispatching2\DelegateHandler.cs" />
+    <Compile Include="Temp\Dispatching2\Dispatcher.cs" />
+    <Compile Include="Temp\Dispatching2\DispatcherConfiguration.cs" />
+    <Compile Include="Temp\Dispatching2\DispatcherConfigurationDelegateExtensions.cs" />
+    <Compile Include="Temp\Dispatching2\DispatcherConfigurationExtensions.cs" />
+    <Compile Include="Temp\Dispatching2\DispatcherContext.cs" />
+    <Compile Include="Temp\Dispatching2\DispatchMode.cs" />
+    <Compile Include="Temp\Dispatching2\HandlerRegistry.cs" />
+    <Compile Include="Temp\Dispatching2\HandlerRegistryBuilder.cs" />
+    <Compile Include="Temp\Dispatching2\IDispatcher.cs" />
+    <Compile Include="Temp\Dispatching2\IHandler.cs" />
+    <Compile Include="Temp\Dispatching2\IHandlerRegistry.cs" />
+    <Compile Include="Temp\Dispatching2\IHandlerRegistryBuilder.cs" />
+    <Compile Include="Temp\Dispatching2\ObjectHandler.cs" />
     <Compile Include="Dispatching\DispatcherConfiguration.cs" />
     <Compile Include="Dispatching\DispatcherConfigurationExtensions.cs" />
     <Compile Include="Dispatching\IDispatcher.cs" />
@@ -116,8 +110,8 @@
     <Compile Include="SingleThreadTransportEndpointObserver.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Distributing\" />
-    <Folder Include="Observing\" />
+    <Folder Include="Temp\Distributing\" />
+    <Folder Include="Temp\Observing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
